@@ -1,0 +1,80 @@
+Index: e-smith-ibays/e-smith-ibays.spec
+diff -u e-smith-ibays/root/usr/lib/perl5/site_perl/esmith/FormMagick/Panel/ibays.pm:1.4 e-smith-ibays/root/usr/lib/perl5/site_perl/esmith/FormMagick/Panel/ibays.pm:1.5
+--- e-smith-ibays/root/usr/lib/perl5/site_perl/esmith/FormMagick/Panel/ibays.pm:1.4	Thu Nov 11 15:25:59 2004
++++ e-smith-ibays/root/usr/lib/perl5/site_perl/esmith/FormMagick/Panel/ibays.pm	Wed Jan 19 19:55:17 2005
+@@ -1,7 +1,7 @@
+ #!/usr/bin/perl -w 
+ 
+ #
+-# $Id: ibays.pm,v 1.3 2003/11/19 16:33:45 msoulier Exp $
++# $Id: ibays.pm,v 1.4 2004/11/11 20:25:59 charlieb Exp $
+ #
+ 
+ package    esmith::FormMagick::Panel::ibays;
+@@ -42,7 +42,7 @@
+     wherenext
+ );
+ 
+-our $VERSION = sprintf '%d.%03d', q$Revision: 1.3 $ =~ /: (\d+).(\d+)/;
++our $VERSION = sprintf '%d.%03d', q$Revision: 1.4 $ =~ /: (\d+).(\d+)/;
+ 
+ our $accountdb = esmith::AccountsDB->open();
+ our $configdb = esmith::ConfigDB->open();
+@@ -602,7 +602,7 @@
+ 	$ibayPlugin->ibay_panel_save_fields($self, $acct);
+ 
+ 	# Untaint $name before use in system()
+-	$name =~ /(\.+)/; $name = $1;
++	$name =~ /(.+)/; $name = $1;
+         if (system ("/sbin/e-smith/signal-event", "ibay-create", $name) == 0) {
+ 	    $self->success("SUCCESSFULLY_CREATED_IBAY");
+         } else {
+@@ -633,7 +633,7 @@
+ 	    $ibayPlugin->ibay_panel_save_fields($self, $acct);
+ 
+ 	    # Untaint $name before use in system()
+-	    $name =~ /(\.+)/; $name = $1;
++	    $name =~ /(.+)/; $name = $1;
+             if (system ("/sbin/e-smith/signal-event", "ibay-modify", $name) == 0) {
+ 		$self->success("SUCCESSFULLY_MODIFIED_IBAY");
+             } else {
+@@ -666,7 +666,7 @@
+             }
+ 
+ 	    # Untaint $name before use in system()
+-	    $name =~ /(\.+)/; $name = $1;
++	    $name =~ /(.+)/; $name = $1;
+             if (system ("/sbin/e-smith/signal-event", "ibay-delete", $name) == 0) {
+                 $self->success("SUCCESSFULLY_DELETED_IBAY");
+ 		$acct->delete();
+@@ -697,7 +697,7 @@
+         esmith::util::setIbayPassword ($acct->key, $newPass);
+         $acct->set_prop('PasswordSet', 'yes');
+ 	# Untaint $name before use in system()
+-	$name =~ /(\.+)/; $name = $1;
++	$name =~ /(.+)/; $name = $1;
+         if (system ("/sbin/e-smith/signal-event", "password-modify", $name) == 0) {
+             $self->success("SUCCESSFULLY_RESET_PASSWORD");
+         } else {
+Index: e-smith-ibays/root/usr/lib/perl5/site_perl/esmith/IbayPlugin/none.pm
+diff -u e-smith-ibays/root/usr/lib/perl5/site_perl/esmith/IbayPlugin/none.pm:1.6 e-smith-ibays/root/usr/lib/perl5/site_perl/esmith/IbayPlugin/none.pm:1.7
+--- e-smith-ibays/root/usr/lib/perl5/site_perl/esmith/IbayPlugin/none.pm:1.6	Fri Feb  6 16:27:30 2004
++++ e-smith-ibays/root/usr/lib/perl5/site_perl/esmith/IbayPlugin/none.pm	Wed Jan 19 19:55:17 2005
+@@ -94,7 +94,7 @@
+     my %properties = $ibay->props;
+ 
+     # CGIs enabled?
+-    my $is_cgi_enabled = ($ibay->prop('CgiBin') || 'disabled') eq 'enabled' ? 1 : 0;
++    our $is_cgi_enabled = ($ibay->prop('CgiBin') || 'disabled') eq 'enabled' ? 1 : 0;
+ 
+     #------------------------------------------------------------
+     # Fix permissions on ibay files.
+@@ -126,7 +126,7 @@
+     our $owner = undef;
+     our $fileperm = 0600;
+     our $dirperm = 0550;
+-    my $cgifileperm = 0700;
++    our $cgifileperm = 0700;
+ 
+     if ($properties {'UserAccess'} eq 'wr-admin-rd-group')
+     {

@@ -1,0 +1,265 @@
+Index: e-smith-ibays/e-smith-ibays.spec
+diff -u e-smith-ibays/root/etc/e-smith/events/actions/ibay-modify:1.3 e-smith-ibays/root/etc/e-smith/events/actions/ibay-modify:1.4
+--- e-smith-ibays/root/etc/e-smith/events/actions/ibay-modify:1.3	Wed Nov 19 15:17:50 2003
++++ e-smith-ibays/root/etc/e-smith/events/actions/ibay-modify	Fri Feb  6 14:56:26 2004
+@@ -2,22 +2,22 @@
+ 
+ #----------------------------------------------------------------------
+ # copyright (C) 1999-2003 Mitel Networks Corporation
+-# 
++#
+ # This program is free software; you can redistribute it and/or modify
+ # it under the terms of the GNU General Public License as published by
+ # the Free Software Foundation; either version 2 of the License, or
+ # (at your option) any later version.
+-# 		
++#
+ # This program is distributed in the hope that it will be useful,
+ # but WITHOUT ANY WARRANTY; without even the implied warranty of
+ # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ # GNU General Public License for more details.
+-# 		
++#
+ # You should have received a copy of the GNU General Public License
+ # along with this program; if not, write to the Free Software
+ # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+-# 
+-# Technical support for this program is available from Mitel Networks 
++#
++# Technical support for this program is available from Mitel Networks
+ # Please visit our web site www.mitel.com/sme/ for details.
+ #----------------------------------------------------------------------
+ package esmith;
+@@ -47,7 +47,7 @@
+ my $accountdb = esmith::AccountsDB->open_ro();
+ 
+ my $ibay = $accountdb->get($ibayName);
+-my $ibayPlugin = esmith::IbayPlugin->load($ibay->prop('Plugin') || 'none'); 
++my $ibayPlugin = esmith::IbayPlugin->load($ibay->prop('Plugin') || 'none');
+ 
+ #------------------------------------------------------------
+ # Check the Unix account.
+@@ -66,33 +66,33 @@
+     # Create the ibay's unique group first
+ 
+     system(
+-	    "/usr/sbin/groupadd",
+-	    "-g",
+-	    db_get_prop(\%accounts, $ibayName, "Gid"),
+-	    $ibayName
+-	) == 0 or die "Failed to create group $ibayName.\n";
++        "/usr/sbin/groupadd",
++        "-g",
++        db_get_prop(\%accounts, $ibayName, "Gid"),
++        $ibayName
++    ) == 0 or die "Failed to create group $ibayName.\n";
+ 
+     system(
+-	    "/usr/sbin/useradd",
+-	    "-u",
+-	    db_get_prop(\%accounts, $ibayName, "Uid"),
+-	    "-g",
+-	    db_get_prop(\%accounts, $ibayName, "Gid"),
+-	    "-c",
+-	    db_get_prop(\%accounts, $ibayName, "Name"),
+-	    "-d",
+-	    "/home/e-smith/files/ibays/$ibayName/files",
+-	    "-G",
+-	    "shared,"
+-		. db_get_prop(\%accounts, $ibayName, "Group"),
+-	    "-M",
+-	    "-s",
+-	    "/bin/false",
+-	    "$ibayName"
+-	) == 0 or die "Failed to create account $ibayName.\n";
++        "/usr/sbin/useradd",
++        "-u",
++        db_get_prop(\%accounts, $ibayName, "Uid"),
++        "-g",
++        db_get_prop(\%accounts, $ibayName, "Gid"),
++        "-c",
++        db_get_prop(\%accounts, $ibayName, "Name"),
++        "-d",
++        "/home/e-smith/files/ibays/$ibayName/files",
++        "-G",
++        "shared,"
++        . db_get_prop(\%accounts, $ibayName, "Group"),
++        "-M",
++        "-s",
++        "/bin/false",
++        "$ibayName"
++    ) == 0 or die "Failed to create account $ibayName.\n";
+ 
+     system("/usr/bin/passwd", "-l", $ibayName) == 0
+-	or die "Error running /usr/bin/passwd command to lock account $ibayName";
++    or die "Error running /usr/bin/passwd command to lock account $ibayName";
+ 
+     $ibayPlugin->install($ibayName);
+ }
+@@ -103,15 +103,17 @@
+     #------------------------------------------------------------
+ 
+     system("/usr/sbin/usermod", "-c", "$properties{'Name'}",
+-	"-G", "shared,$properties{'Group'}", "$ibayName") == 0
+-	    or die "Failed to modify account $ibayName.\n";
+-    
++    "-G", "shared,$properties{'Group'}", "$ibayName") == 0
++        or die "Failed to modify account $ibayName.\n";
++
+     $ibayPlugin->upgrade($ibayName);
+ }
+ 
+ #------------------------------------------------------------
+ # Fix permissions on ibay files.
+ #------------------------------------------------------------
++# Not any more. This is now done in the repair method of
++# esmith::IbayPlugin::none, if no plugin exists.
+ 
+ #--------------------------------------------------
+ # main directory is writeable only by root
+Index: e-smith-ibays/root/usr/lib/perl5/site_perl/esmith/IbayPlugin/none.pm
+diff -u e-smith-ibays/root/usr/lib/perl5/site_perl/esmith/IbayPlugin/none.pm:1.3 e-smith-ibays/root/usr/lib/perl5/site_perl/esmith/IbayPlugin/none.pm:1.5
+--- e-smith-ibays/root/usr/lib/perl5/site_perl/esmith/IbayPlugin/none.pm:1.3	Wed Nov 19 14:57:30 2003
++++ e-smith-ibays/root/usr/lib/perl5/site_perl/esmith/IbayPlugin/none.pm	Fri Feb  6 16:12:57 2004
+@@ -19,7 +19,7 @@
+ {
+     my $self = shift;
+     my $ibay = $self->{ibay};
+-    
++
+     # in httpd.conf template, the $localAccess variable holds, ie:
+     # 127.0.0.1 192.62.102.0/255.255.255.0
+ }
+@@ -37,14 +37,14 @@
+     #------------------------------------------------------------
+ 
+     system("/bin/cp", "-Rp", "/etc/e-smith/skel/ibay/.",
+-	"/home/e-smith/files/ibays/$ibayName") == 0
+-	    or die "Error copying ibay skeletal files";
++    "/home/e-smith/files/ibays/$ibayName") == 0
++        or die "Error copying ibay skeletal files";
+ 
+     processTemplate( {
+-	TEMPLATE_PATH=>"/home/e-smith/files/ibays/html/index.html",
+-	OUTPUT_FILENAME=>"/home/e-smith/files/ibays/$ibayName/html/index.html",
+-	MORE_DATA=>{IBAY_NAME=>$ibayName},
+-		} );
++        TEMPLATE_PATH=>"/home/e-smith/files/ibays/html/index.html",
++        OUTPUT_FILENAME=>"/home/e-smith/files/ibays/$ibayName/html/index.html",
++        MORE_DATA=>{IBAY_NAME=>$ibayName},
++    } );
+ 
+ }
+ 
+@@ -93,6 +93,9 @@
+     my $ibay = $accountsDB->get($ibayName);
+     my %properties = $ibay->props;
+ 
++    # CGIs enabled?
++    my $is_cgi_enabled = ($ibay->prop('CgiBin') || 'disabled') eq 'enabled' ? 1 : 0;
++
+     #------------------------------------------------------------
+     # Fix permissions on ibay files.
+     #------------------------------------------------------------
+@@ -102,7 +105,7 @@
+     #--------------------------------------------------
+ 
+     chdir "/home/e-smith/files/ibays/$ibayName"
+-       or die "Could not chdir to /home/e-smith/files/ibays/$ibayName";
++        or die "Could not chdir to /home/e-smith/files/ibays/$ibayName";
+ 
+     esmith::util::chownFile("root", "root", ".");
+     chmod 0755, ".";
+@@ -123,49 +126,65 @@
+     our $owner = undef;
+     our $fileperm = 0600;
+     our $dirperm = 0550;
++    my $cgifileperm = 0700;
+ 
+     if ($properties {'UserAccess'} eq 'wr-admin-rd-group')
+     {
+-	$owner = "admin";
+-	$fileperm = 0640;
+-	$dirperm = 02750;
++        $owner = "admin";
++        $fileperm = 0640;
++        $dirperm = 02750;
++        $cgifileperm = 0750;
+     }
+     elsif ($properties {'UserAccess'} eq 'wr-group-rd-group')
+     {
+-	$fileperm = 0660;
+-	$dirperm = 02770;
++        $fileperm = 0660;
++        $dirperm = 02770;
++        $cgifileperm = 0770;
+     }
+     elsif ($properties {'UserAccess'} eq 'wr-group-rd-everyone')
+     {
+-	$fileperm = 0664;
+-	$dirperm = 02775;
++        $fileperm = 0664;
++        $dirperm = 02775;
++        $cgifileperm = 0775;
+     }
+     else
+     {
+-	warn("Value of UserAccess bad or unset");
++        warn("Value of UserAccess bad or unset");
+     }
+ 
+     sub process
+     {
+-	if (-l)
+-	{
+-	    $File::Find::prune = 1;
+-	}
+-	else
+-	{
+-	    esmith::util::chownFile($owner, $group, $_);
+-	    if (-d)
+-	    {
+-		chmod $dirperm, $_;
+-	    }
+-	    elsif (-f)
+-	    {
+-		# Preserve execute permissions on files
+-		my $experm = (stat($_))[2] & 0111;
+-		$experm |= $fileperm;
+-		chmod $experm, $_;
+-	    }
+-	}
++        if (-l)
++        {
++            $File::Find::prune = 1;
++        }
++        else
++        {
++            esmith::util::chownFile($owner, $group, $_);
++            if (-d)
++            {
++                chmod $dirperm, $_;
++            }
++            elsif (-f)
++            {
++                # Preserving execute permission on files is not enough, for
++                # CGIs, since managing Unix permissions over an smb mount is
++                # problematic.  Everything under cgi-bin should be executable
++                # (even libraries, since it's harmless), if CGI functionality
++                # is enabled.
++                if (($File::Find::fullpath =~ m#/cgi-bin/#) && ($is_cgi_enabled))
++                {
++                    chmod $cgifileperm, $_;
++                }
++                else
++                {
++                    # Preserve execute permissions on files
++                    my $experm = (stat($_))[2] & 0111;
++                    $experm |= $fileperm;
++                    chmod $experm, $_;
++                }
++            }
++        }
+     }
+ 
+     find(\&process, grep { !/^\.\.?$/ } glob('* .*'));
