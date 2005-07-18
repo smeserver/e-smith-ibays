@@ -15,6 +15,7 @@ Patch2: e-smith-ibays-1.1.1-04.mitel_patch
 Patch3: e-smith-ibays-1.1.1-06.mitel_patch
 Patch4: e-smith-ibays-1.1.1-07.mitel_patch
 Patch5: e-smith-ibays-1.1.1-options.patch
+Patch6: e-smith-ibays-1.1.1-cleanup.patch
 Packager: e-smith developers <bugs@e-smith.com>
 BuildRoot: /var/tmp/%{name}-%{version}-%{release}-buildroot
 BuildArchitectures: noarch
@@ -33,6 +34,7 @@ e-smith server and gateway software - ibays module.
 * Sun Jul 17 2005 Shad L. Lords <slords@mail.com>
 - [1.1.1-07sme01]
 - Move some of the options to the database
+- Cleanup code to use new db interface methods
 
 * Wed Jan 19 2005 Charlie Brady <charlieb@e-smith.com>
 - [1.1.1-07]
@@ -141,6 +143,7 @@ e-smith server and gateway software - ibays module.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
+%patch6 -p1
 
 %pre
 %post

@@ -1,0 +1,220 @@
+diff -Nur -x '*.orig' -x '*.rej' e-smith-ibays-1.1.1/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/90e-smithAccess10common mezzanine_patched_e-smith-ibays-1.1.1/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/90e-smithAccess10common
+--- e-smith-ibays-1.1.1/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/90e-smithAccess10common	1969-12-31 17:00:00.000000000 -0700
++++ mezzanine_patched_e-smith-ibays-1.1.1/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/90e-smithAccess10common	2005-07-17 16:57:08.209233936 -0600
+@@ -0,0 +1,35 @@
++#------------------------------------------------------------
++# common directories
++#------------------------------------------------------------
++
++<Directory /home/e-smith/files/manager/html>
++    Options Includes ExecCGI
++    AllowOverride None
++    order deny,allow
++    deny from all
++    allow from all
++</Directory>
++
++<Directory /home/e-smith/files/manager/cgi-bin>
++    Options ExecCGI
++    AllowOverride None
++    order deny,allow
++    deny from all
++    allow from all
++</Directory>
++
++<Directory /etc/e-smith/web/common>
++    AllowOverride None
++    order deny,allow
++    deny from all
++    allow from all
++</Directory>
++
++<Directory /var/www/icons>
++    Options Indexes
++    AllowOverride None
++    order deny,allow
++    deny from all
++    allow from all
++</Directory>
++
+diff -Nur -x '*.orig' -x '*.rej' e-smith-ibays-1.1.1/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/90e-smithAccess10primary mezzanine_patched_e-smith-ibays-1.1.1/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/90e-smithAccess10primary
+--- e-smith-ibays-1.1.1/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/90e-smithAccess10primary	2005-07-17 18:37:43.423449864 -0600
++++ mezzanine_patched_e-smith-ibays-1.1.1/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/90e-smithAccess10primary	1969-12-31 17:00:00.000000000 -0700
+@@ -1,81 +0,0 @@
+-#------------------------------------------------------------
+-# primary directories
+-#------------------------------------------------------------
+-
+-<Directory /etc/e-smith/web/common>
+-    AllowOverride None
+-    order deny,allow
+-    deny from all
+-    allow from all
+-</Directory>
+-
+-<Directory /home/e-smith/files/ibays/Primary/html>
+-    Options Indexes
+-{
+-    local %services = ( php => $php);
+-
+-    my $status = db_get_prop (\%services, 'php', 'status') || 'disabled';
+-
+-    if ($status eq 'enabled')
+-    {
+-        $OUT .= <<EOF;
+-    Options +Includes
+-    AddType application/x-httpd-php .php .php3 .phtml
+-EOF
+-    }
+-    else
+-    {
+-        $OUT .= <<EOF;
+-    Options +IncludesNOEXEC
+-    <FilesMatch "\.(php|php3|phtml)\$">
+-        order deny,allow
+-        Deny from all
+-    </FilesMatch>
+-EOF
+-    }
+-}
+-    AllowOverride None
+-    order deny,allow
+-    deny from all
+-    allow from all
+-</Directory>
+-
+-<Directory /home/e-smith/files/manager/html>
+-    Options Includes ExecCGI
+-    AllowOverride None
+-    order deny,allow
+-    deny from all
+-    allow from all
+-</Directory>
+-
+-<Directory /var/www/icons>
+-    Options Indexes
+-    AllowOverride None
+-    order deny,allow
+-    deny from all
+-    allow from all
+-</Directory>
+-
+-<Directory /home/e-smith/files/ibays/Primary/cgi-bin>
+-    Options ExecCGI
+-    AllowOverride None
+-    order deny,allow
+-    deny from all
+-    allow from all
+-</Directory>
+-
+-<Directory /home/e-smith/files/manager/cgi-bin>
+-    Options ExecCGI
+-    AllowOverride None
+-    order deny,allow
+-    deny from all
+-    allow from all
+-</Directory>
+-
+-<Directory /home/e-smith/files/ibays/Primary/files>
+-    AllowOverride None
+-    order deny,allow
+-    deny from all
+-    allow from all
+-</Directory>
+-
+diff -Nur -x '*.orig' -x '*.rej' e-smith-ibays-1.1.1/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/VirtualHosts/20IbayContent mezzanine_patched_e-smith-ibays-1.1.1/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/VirtualHosts/20IbayContent
+--- e-smith-ibays-1.1.1/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/VirtualHosts/20IbayContent	2003-08-13 14:46:59.000000000 -0600
++++ mezzanine_patched_e-smith-ibays-1.1.1/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/VirtualHosts/20IbayContent	2005-07-17 18:20:33.791186320 -0600
+@@ -1,66 +1,53 @@
+ {
+-    tie my %accounts, 'esmith::config', '/home/e-smith/accounts';
+-    tie my %domains,  'esmith::config', '/home/e-smith/domains';
+-    $OUT = "";
+-
+-    my $ibay = $virtualHostContent;
+-    my $basedir = "/home/e-smith/files/ibays/$ibay";
+-    my $cgiBin = db_get_prop(\%accounts, $ibay, "CgiBin") || "";
++    use esmith::AccountsDB;
++    my $adb = esmith::AccountsDB->open_ro();
+ 
+-    $OUT .= "    DocumentRoot         $basedir/html\n";
++    $OUT = "";
++    my $basedir = '/home/e-smith/files/ibays';
+ 
+-    if ($cgiBin)
+-    {
+-	$OUT .= "    ScriptAlias /cgi-bin $basedir/cgi-bin\n";
+-    }
+-    else
++    $OUT .= "    DocumentRoot $basedir/$virtualHostContent/html\n";
++    my $cgiBin = $adb->get($virtualHostContent)->prop('CgiBin') || "disabled";
++    if ($cgiBin eq 'enabled')
+     {
++	$OUT .= "    ScriptAlias /cgi-bin $basedir/$virtualHostContent/cgi-bin\n";
++    } else {
+ 	$OUT .=
+ 		"    # To add cgi-bin ScriptAlias for this i-bay, run:\n"
+-	      . "    #   /sbin/e-smith/db accounts setprop $ibay CgiBin "
+-			    . "enabled\n"
++	      . "    #   /sbin/e-smith/db accounts setprop $virtualHost CgiBin enabled\n"
+ 	      . "    #   /sbin/e-smith/signal-event console-save\n";
+     }
+-    $OUT .= "    Alias       /files   $basedir/files\n";
++    $OUT .= "    Alias       /files   /home/e-smith-files/ibays/$virtualHostContent/files\n";
+     
+-    my @ibays = grep { db_get_type(\%accounts, $_) eq "ibay" } 
+-		    keys %accounts;
+-
+-    if ((db_get_prop(\%domains, $virtualHost, 'SystemPrimaryDomain') || 'no')
+-         eq 'yes')
++    my $primaryDomain = $domain->prop('SystemPrimaryDomain') || "no";
++    if ($primaryDomain eq 'yes')
+     {
+-	foreach my $ibay (@ibays)
++        foreach my $ibay ($adb->ibays)
+ 	{
+-	    next if $ibay eq $virtualHostContent;
+-	    my $basedir = "/home/e-smith/files/ibays/$ibay";
+-	    my $cgiBin = db_get_prop(\%accounts, $ibay, "CgiBin") || "";
+-	    my $name = db_get_prop(\%accounts, $ibay, "Name") || "";
+-	    
++	    my $key = $ibay->key;
++
++	    next if $key eq $virtualHostContent;
++
+ 	    $OUT .= "\n";
+-	    $OUT .= "    # $ibay ibay ($name)\n";
++	    $OUT .= "    # $key ibay (" . $ibay->prop('Name') . ")\n";
+ 	    $OUT .= "\n";
+ 	    
+-	    if ($cgiBin)
+-	    {
+-		$OUT .= "    ScriptAlias /$ibay/cgi-bin $basedir/cgi-bin\n";
+-	    }
+-	    else
++	    my $cgiBin = $ibay->prop('CgiBin') || "disabled";
++	    if ($cgiBin eq 'enabled')
+ 	    {
++		$OUT .= "    ScriptAlias /$key/cgi-bin $basedir/$key/cgi-bin\n";
++	    } else {
+ 		$OUT .= 
+ 		    "    # To add cgi-bin ScriptAlias for this i-bay, run:\n"
+-		    . "    #   /sbin/e-smith/db accounts setprop $ibay CgiBin "
+-				. "enabled\n"
++		    . "    #   /sbin/e-smith/db accounts setprop $key CgiBin enabled\n"
+ 		    . "    #   /sbin/e-smith/signal-event console-save\n";
+ 	    }
+-
+-	    $OUT .= "    Alias       /$ibay/files   $basedir/files\n";
++	    $OUT .= "    Alias       /$key/files   $basedir/$key/files\n";
+ 
+ 	    # Make sure this one is last since it's a prefix of the above
+ 	    # aliases. If we put it first, it would get expanded before the
+ 	    # other aliases, creating problems.
+ 
+-	    $OUT .= "    Alias       /$ibay        $basedir/html\n";
++	    $OUT .= "    Alias       /$key         $basedir/$key/html\n";
+ 	}
+-	$OUT .= "    # No ibays in system\n" unless @ibays;
+     }
+ }

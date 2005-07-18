@@ -7,3 +7,8 @@ Sun Jul 17 16:41:54 2005                           Shad Lords (slords)
 Make some options available via database entries
 
 ----------------------------------------------------------------------
+Sun Jul 17 18:39:10 2005                           Shad Lords (slords)
+
+Cleanup of ibay code to use new db api
+
+----------------------------------------------------------------------
