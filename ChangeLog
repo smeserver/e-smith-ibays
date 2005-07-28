@@ -12,3 +12,9 @@ Sun Jul 17 18:39:10 2005                           Shad Lords (slords)
 Cleanup of ibay code to use new db api
 
 ----------------------------------------------------------------------
+Thu Jul 28 16:24:53 2005                           Shad Lords (slords)
+
+- Remove 90e-smithAccess10common (belongs in e-smith-apache)
+
+
+----------------------------------------------------------------------

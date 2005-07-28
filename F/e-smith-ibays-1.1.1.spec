@@ -2,7 +2,7 @@ Summary: e-smith server and gateway - ibays module
 %define name e-smith-ibays
 Name: %{name}
 %define version 1.1.1
-%define release 07sme01
+%define release 07sme02
 Version: %{version}
 Release: %{release}
 License: GPL
@@ -16,6 +16,7 @@ Patch3: e-smith-ibays-1.1.1-06.mitel_patch
 Patch4: e-smith-ibays-1.1.1-07.mitel_patch
 Patch5: e-smith-ibays-1.1.1-options.patch
 Patch6: e-smith-ibays-1.1.1-cleanup.patch
+Patch7: e-smith-ibays-1.1.1-common.patch
 Packager: e-smith developers <bugs@e-smith.com>
 BuildRoot: /var/tmp/%{name}-%{version}-%{release}-buildroot
 BuildArchitectures: noarch
@@ -31,6 +32,10 @@ AutoReqProv: no
 e-smith server and gateway software - ibays module.
 
 %changelog
+* Sun Jul 17 2005 Shad L. Lords <slords@mail.com>
+- [1.1.1-07sme02]
+- Remove 90e-smithAccess10common (belongs in e-smith-apache)
+
 * Sun Jul 17 2005 Shad L. Lords <slords@mail.com>
 - [1.1.1-07sme01]
 - Move some of the options to the database
@@ -144,6 +149,7 @@ e-smith server and gateway software - ibays module.
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
+%patch7 -p1
 
 %pre
 %post
