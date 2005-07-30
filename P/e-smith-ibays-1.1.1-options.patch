@@ -1,0 +1,40 @@
+diff -Nur -x '*.orig' -x '*.rej' e-smith-ibays-1.1.1/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/90e-smithAccess40ibays mezzanine_patched_e-smith-ibays-1.1.1/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/90e-smithAccess40ibays
+--- e-smith-ibays-1.1.1/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/90e-smithAccess40ibays	2003-06-06 12:45:18.000000000 -0600
++++ mezzanine_patched_e-smith-ibays-1.1.1/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/90e-smithAccess40ibays	2005-07-30 16:50:41.262425000 -0600
+@@ -89,7 +89,10 @@
+ 	}
+ 
+ 
++	my $allowOverride = $properties{'AllowOverride'} || "None";
+ 	my $dynamicContent = $properties{'CgiBin'} || "disabled";
++	my $followSymLinks = $properties{'FollowSymLinks'} || "disabled";
++	my $indexes = $properties{'Indexes'} || "enabled";
+ 	$OUT .= "\n";
+ 	$OUT .= "#------------------------------------------------------------\n";
+ 	$OUT .= "# $key ibay directories ($properties{'Name'})\n";
+@@ -97,20 +100,22 @@
+ 
+ 	$OUT .= "\n";
+ 	$OUT .= "<Directory /home/e-smith/files/ibays/$key/html>\n";
+-	$OUT .= "    Options Indexes\n";
++	$OUT .= "    Options None\n";
++	$OUT .= "    Options +Indexes\n" if ($indexes eq 'enabled');
++	$OUT .= "    Options +FollowSymLinks\n" if ($followSymLinks eq 'enabled');
+ 	if ($dynamicContent eq 'enabled')
+ 	{
+ 	    $OUT .= "    Options +Includes\n";
+ 	}
+ 	else
+ 	{
++	    $OUT .= "    Options +IncludesNOEXEC\n";
+ 	    $OUT .= "    <FilesMatch \"\\.(php|php3|phtml)\$\">\n";
+ 	    $OUT .= "        order deny,allow\n";
+ 	    $OUT .= "        Deny from all\n";
+ 	    $OUT .= "    </FilesMatch>\n";
+-	    $OUT .= "    Options +IncludesNOEXEC\n";
+ 	}
+-	$OUT .= "    AllowOverride None\n";
++	$OUT .= "    AllowOverride $allowOverride\n";
+ 	$OUT .= "    order deny,allow\n";
+ 	$OUT .= "    deny from all\n";
+ 	$OUT .= "    allow from $allow\n";

@@ -23,3 +23,10 @@ Sat Jul 30 16:52:00 2005                           Shad Lords (slords)
 Sync with mitel
 
 ----------------------------------------------------------------------
+Sat Jul 30 17:16:18 2005                           Shad Lords (slords)
+
+- Remove 90e-smithAccess10common (belongs in e-smith-apache)
+- Move some ibay options to database
+
+
+----------------------------------------------------------------------

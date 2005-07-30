@@ -1,0 +1,83 @@
+diff -Nur -x '*.orig' -x '*.rej' e-smith-ibays-1.1.1/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/90e-smithAccess10primary mezzanine_patched_e-smith-ibays-1.1.1/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/90e-smithAccess10primary
+--- e-smith-ibays-1.1.1/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/90e-smithAccess10primary	2005-07-30 16:52:39.556550960 -0600
++++ mezzanine_patched_e-smith-ibays-1.1.1/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/90e-smithAccess10primary	1969-12-31 17:00:00.000000000 -0700
+@@ -1,79 +0,0 @@
+-#------------------------------------------------------------
+-# primary directories
+-#------------------------------------------------------------
+-
+-<Directory /etc/e-smith/web/common>
+-    AllowOverride None
+-    order deny,allow
+-    deny from all
+-    allow from all
+-</Directory>
+-
+-<Directory /home/e-smith/files/ibays/Primary/html>
+-    Options Indexes Includes 
+-{
+-    my $status = $php{'status'} || 'disabled';
+-
+-    if ($status eq 'enabled')
+-    {
+-        $OUT .= <<EOF;
+-    Options +Includes
+-    AddType application/x-httpd-php .php .php3 .phtml
+-EOF
+-    }
+-    else
+-    {
+-        $OUT .= <<EOF;
+-    Options +IncludesNOEXEC
+-    <FilesMatch "\.(php|php3|phtml)\$">
+-        order deny,allow
+-        Deny from all
+-    </FilesMatch>
+-EOF
+-    }
+-}
+-    AllowOverride None
+-    order deny,allow
+-    deny from all
+-    allow from all
+-</Directory>
+-
+-<Directory /home/e-smith/files/manager/html>
+-    Options Indexes Includes ExecCGI
+-    AllowOverride None
+-    order deny,allow
+-    deny from all
+-    allow from all
+-</Directory>
+-
+-<Directory /var/www/icons>
+-    Options Indexes Includes
+-    AllowOverride None
+-    order deny,allow
+-    deny from all
+-    allow from all
+-</Directory>
+-
+-<Directory /home/e-smith/files/ibays/Primary/cgi-bin>
+-    Options ExecCGI
+-    AllowOverride None
+-    order deny,allow
+-    deny from all
+-    allow from all
+-</Directory>
+-
+-<Directory /home/e-smith/files/manager/cgi-bin>
+-    Options ExecCGI
+-    AllowOverride None
+-    order deny,allow
+-    deny from all
+-    allow from all
+-</Directory>
+-
+-<Directory /home/e-smith/files/ibays/Primary/files>
+-    AllowOverride None
+-    order deny,allow
+-    deny from all
+-    allow from all
+-</Directory>
+-
