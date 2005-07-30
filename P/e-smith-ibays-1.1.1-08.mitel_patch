@@ -1,0 +1,282 @@
+Index: e-smith-ibays/e-smith-ibays.spec
+diff -u e-smith-ibays/root/etc/e-smith/events/actions/ibay-delete:1.1.1.1 e-smith-ibays/root/etc/e-smith/events/actions/ibay-delete:1.2
+--- e-smith-ibays/root/etc/e-smith/events/actions/ibay-delete:1.1.1.1	Thu May  8 12:09:00 2003
++++ e-smith-ibays/root/etc/e-smith/events/actions/ibay-delete	Thu Jul 28 14:42:07 2005
+@@ -1,7 +1,7 @@
+-#!/usr/bin/perl -w
++#!/bin/sh
+ 
+ #----------------------------------------------------------------------
+-# copyright (C) 1999, 2000 e-smith, inc.
++# copyright (C) 1999-2005 Mitel Networks Corporation
+ #		
+ # This program is free software; you can redistribute it and/or modify
+ # it under the terms of the GNU General Public License as published by
+@@ -17,38 +17,19 @@
+ # along with this program; if not, write to the Free Software
+ # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+ # 
+-# Technical support for this program is available from e-smith, inc.
+-# Please visit our web site www.e-smith.com for details.
+ #----------------------------------------------------------------------
+ 
+-package esmith;
+-
+-use strict;
+-use Errno;
+-use esmith::config;
+-use esmith::util;
+-
+-my %conf;
+-tie %conf, 'esmith::config';
+-
+-my %accounts;
+-tie %accounts, 'esmith::config', '/home/e-smith/accounts';
+-
+-my $event = $ARGV [0];
+-my $ibayName = $ARGV [1];
+-
+ #------------------------------------------------------------
+ # Delete the Unix account and files for the ibay.
+ #------------------------------------------------------------
+ 
+-die "ibayName argument missing." unless defined ($ibayName);
+-
+-my $discard = `/bin/rm -rf /home/e-smith/files/ibays/$ibayName`;
+-
+-$discard = `/usr/sbin/userdel '$ibayName'`;
+-if ($? != 0)
+-{
+-    die "Failed to delete account $ibayName.\n";
+-}
++event=$1
++ibay=$2
++if [ -z "$ibay" ]
++then
++    echo ibayName argument missing
++    exit 1
++fi
+ 
+-exit (0);
++/bin/rm -rf /home/e-smith/files/ibays/$ibay
++exec /usr/sbin/userdel "$ibay"
+Index: e-smith-ibays/root/etc/e-smith/events/actions/ibay-modify
+diff -u e-smith-ibays/root/etc/e-smith/events/actions/ibay-modify:1.4 e-smith-ibays/root/etc/e-smith/events/actions/ibay-modify:1.5
+--- e-smith-ibays/root/etc/e-smith/events/actions/ibay-modify:1.4	Fri Feb  6 14:56:26 2004
++++ e-smith-ibays/root/etc/e-smith/events/actions/ibay-modify	Thu Jul 28 14:42:07 2005
+@@ -1,7 +1,7 @@
+ #!/usr/bin/perl -w
+ 
+ #----------------------------------------------------------------------
+-# copyright (C) 1999-2003 Mitel Networks Corporation
++# copyright (C) 1999-2005 Mitel Networks Corporation
+ #
+ # This program is free software; you can redistribute it and/or modify
+ # it under the terms of the GNU General Public License as published by
+@@ -17,16 +17,11 @@
+ # along with this program; if not, write to the Free Software
+ # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+ #
+-# Technical support for this program is available from Mitel Networks
+-# Please visit our web site www.mitel.com/sme/ for details.
+ #----------------------------------------------------------------------
+ package esmith;
+ 
+ use strict;
+ use Errno;
+-use esmith::config;
+-use esmith::util;
+-use esmith::db;
+ use File::Find;
+ use esmith::templates;
+ use esmith::AccountsDB;
+@@ -35,56 +30,46 @@
+ 
+ $ENV{'PATH'} = "/bin";
+ 
+-my %conf;
+-tie %conf, 'esmith::config';
+-
+-my %accounts;
+-tie %accounts, 'esmith::config', '/home/e-smith/accounts';
+-
+ my $event = $ARGV [0];
+ my $ibayName = $ARGV [1];
+ 
+-my $accountdb = esmith::AccountsDB->open_ro();
++die "ibayName argument missing" unless defined ($ibayName);
+ 
++my $accountdb = esmith::AccountsDB->open_ro();
+ my $ibay = $accountdb->get($ibayName);
+ my $ibayPlugin = esmith::IbayPlugin->load($ibay->prop('Plugin') || 'none');
+ 
+-#------------------------------------------------------------
+-# Check the Unix account.
+-#------------------------------------------------------------
+-
+-die "ibayName argument missing" unless defined ($ibayName);
+-
+-my ($type, %properties) = db_get(\%accounts, $ibayName);
+-
+ die "Account $ibayName is not an ibay account; modify ibay event failed.\n"
+-    unless ($type eq 'ibay');
++    unless ($ibay->type eq 'ibay');
+ 
+ if ($event eq 'ibay-create')
+ {
++#------------------------------------------------------------
++# Check the Unix account.
++#------------------------------------------------------------
+ 
+     # Create the ibay's unique group first
+ 
+     system(
+         "/usr/sbin/groupadd",
+         "-g",
+-        db_get_prop(\%accounts, $ibayName, "Gid"),
++	$ibay->prop("Gid"),
+         $ibayName
+     ) == 0 or die "Failed to create group $ibayName.\n";
+ 
+     system(
+         "/usr/sbin/useradd",
+         "-u",
+-        db_get_prop(\%accounts, $ibayName, "Uid"),
++	$ibay->prop("Uid"),
+         "-g",
+-        db_get_prop(\%accounts, $ibayName, "Gid"),
++	$ibay->prop("Gid"),
+         "-c",
+-        db_get_prop(\%accounts, $ibayName, "Name"),
++	$ibay->prop("Name"),
+         "-d",
+         "/home/e-smith/files/ibays/$ibayName/files",
+         "-G",
+         "shared,"
+-        . db_get_prop(\%accounts, $ibayName, "Group"),
++	. $ibay->prop("Group"),
+         "-M",
+         "-s",
+         "/bin/false",
+@@ -102,8 +87,8 @@
+     # Modify ibay description in /etc/passwd using "usermod"
+     #------------------------------------------------------------
+ 
+-    system("/usr/sbin/usermod", "-c", "$properties{'Name'}",
+-    "-G", "shared,$properties{'Group'}", "$ibayName") == 0
++    system("/usr/sbin/usermod", "-c", $ibay->prop("Name"),
++    "-G", "shared," . $ibay->prop("Group"), "$ibayName") == 0
+         or die "Failed to modify account $ibayName.\n";
+ 
+     $ibayPlugin->upgrade($ibayName);
+Index: e-smith-ibays/root/etc/e-smith/templates/etc/e-smith/pam/accounts.allow/20ibayAccounts
+diff -u e-smith-ibays/root/etc/e-smith/templates/etc/e-smith/pam/accounts.allow/20ibayAccounts:1.1.1.1 e-smith-ibays/root/etc/e-smith/templates/etc/e-smith/pam/accounts.allow/20ibayAccounts:1.2
+--- e-smith-ibays/root/etc/e-smith/templates/etc/e-smith/pam/accounts.allow/20ibayAccounts:1.1.1.1	Thu May  8 12:09:01 2003
++++ e-smith-ibays/root/etc/e-smith/templates/etc/e-smith/pam/accounts.allow/20ibayAccounts	Thu Jul 28 14:42:07 2005
+@@ -1,7 +1,9 @@
+ {
+-    tie my %accounts, 'esmith::config', '/home/e-smith/accounts';
++    use esmith::AccountsDB;
+ 
+-    $OUT = join("\n", grep { db_get_type(\%accounts, $_) eq 'ibay'
+-                        && db_get_prop(\%accounts, $_, 'PasswordSet') eq 'yes'
+-                    } keys %accounts);
++    $OUT = join("\n",
++	map { $_->key }
++	    grep { $_->prop('PasswordSet') eq 'yes' }
++		esmith::AccountsDB->open_ro->ibays
++	    );
+ }
+Index: e-smith-ibays/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/90e-smithAccess10primary
+diff -u e-smith-ibays/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/90e-smithAccess10primary:1.1 e-smith-ibays/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/90e-smithAccess10primary:1.2
+--- e-smith-ibays/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/90e-smithAccess10primary:1.1	Fri Jun  6 14:45:18 2003
++++ e-smith-ibays/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/90e-smithAccess10primary	Thu Jul 28 14:42:07 2005
+@@ -12,9 +12,7 @@
+ <Directory /home/e-smith/files/ibays/Primary/html>
+     Options Indexes Includes 
+ {
+-    local %services = ( php => $php);
+-
+-    my $status = db_get_prop (\%services, 'php', 'status') || 'disabled';
++    my $status = $php{'status'} || 'disabled';
+ 
+     if ($status eq 'enabled')
+     {
+Index: e-smith-ibays/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/VirtualHosts/20IbayContent
+diff -u e-smith-ibays/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/VirtualHosts/20IbayContent:1.4 e-smith-ibays/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/VirtualHosts/20IbayContent:1.5
+--- e-smith-ibays/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/VirtualHosts/20IbayContent:1.4	Wed Aug 13 16:46:59 2003
++++ e-smith-ibays/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/VirtualHosts/20IbayContent	Thu Jul 28 14:42:07 2005
+@@ -1,11 +1,15 @@
+ {
+-    tie my %accounts, 'esmith::config', '/home/e-smith/accounts';
+-    tie my %domains,  'esmith::config', '/home/e-smith/domains';
++    use esmith::AccountsDB;
++    my $accounts = esmith::AccountsDB->open_ro;
++
++    use esmith::DomainsDB;
++    my $domains = esmith::DomainsDB->open_ro;
++
+     $OUT = "";
+ 
+     my $ibay = $virtualHostContent;
+     my $basedir = "/home/e-smith/files/ibays/$ibay";
+-    my $cgiBin = db_get_prop(\%accounts, $ibay, "CgiBin") || "";
++    my $cgiBin = $accounts->get_prop($ibay, "CgiBin") || "";
+ 
+     $OUT .= "    DocumentRoot         $basedir/html\n";
+ 
+@@ -23,18 +27,17 @@
+     }
+     $OUT .= "    Alias       /files   $basedir/files\n";
+     
+-    my @ibays = grep { db_get_type(\%accounts, $_) eq "ibay" } 
+-		    keys %accounts;
+-
+-    if ((db_get_prop(\%domains, $virtualHost, 'SystemPrimaryDomain') || 'no')
++    if (($domains->get_prop($virtualHost, 'SystemPrimaryDomain') || 'no')
+          eq 'yes')
+     {
++	my @ibays = @accounts->ibays;
+ 	foreach my $ibay (@ibays)
+ 	{
+-	    next if $ibay eq $virtualHostContent;
+-	    my $basedir = "/home/e-smith/files/ibays/$ibay";
+-	    my $cgiBin = db_get_prop(\%accounts, $ibay, "CgiBin") || "";
+-	    my $name = db_get_prop(\%accounts, $ibay, "Name") || "";
++	    my $key = $ibay->key;
++	    next if $key eq $virtualHostContent;
++	    my $basedir = "/home/e-smith/files/ibays/$key";
++	    my $cgiBin = $ibay->prop("CgiBin") || "";
++	    my $name = $ibay->prop("Name") || "";
+ 	    
+ 	    $OUT .= "\n";
+ 	    $OUT .= "    # $ibay ibay ($name)\n";
+@@ -42,24 +45,24 @@
+ 	    
+ 	    if ($cgiBin)
+ 	    {
+-		$OUT .= "    ScriptAlias /$ibay/cgi-bin $basedir/cgi-bin\n";
++		$OUT .= "    ScriptAlias /$key/cgi-bin $basedir/cgi-bin\n";
+ 	    }
+ 	    else
+ 	    {
+ 		$OUT .= 
+ 		    "    # To add cgi-bin ScriptAlias for this i-bay, run:\n"
+-		    . "    #   /sbin/e-smith/db accounts setprop $ibay CgiBin "
++		    . "    #   /sbin/e-smith/db accounts setprop $key CgiBin "
+ 				. "enabled\n"
+ 		    . "    #   /sbin/e-smith/signal-event console-save\n";
+ 	    }
+ 
+-	    $OUT .= "    Alias       /$ibay/files   $basedir/files\n";
++	    $OUT .= "    Alias       /$key/files   $basedir/files\n";
+ 
+ 	    # Make sure this one is last since it's a prefix of the above
+ 	    # aliases. If we put it first, it would get expanded before the
+ 	    # other aliases, creating problems.
+ 
+-	    $OUT .= "    Alias       /$ibay        $basedir/html\n";
++	    $OUT .= "    Alias       /$key        $basedir/html\n";
+ 	}
+ 	$OUT .= "    # No ibays in system\n" unless @ibays;
+     }
