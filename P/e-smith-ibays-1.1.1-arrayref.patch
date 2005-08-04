@@ -1,0 +1,12 @@
+diff -Nur -x '*.orig' -x '*.rej' e-smith-ibays-1.1.1/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/VirtualHosts/20IbayContent mezzanine_patched_e-smith-ibays-1.1.1/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/VirtualHosts/20IbayContent
+--- e-smith-ibays-1.1.1/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/VirtualHosts/20IbayContent	2005-08-04 01:28:29.399066624 -0600
++++ mezzanine_patched_e-smith-ibays-1.1.1/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/VirtualHosts/20IbayContent	2005-08-03 23:21:43.750887744 -0600
+@@ -30,7 +30,7 @@
+     if (($domains->get_prop($virtualHost, 'SystemPrimaryDomain') || 'no')
+          eq 'yes')
+     {
+-	my @ibays = @accounts->ibays;
++	my @ibays = $accounts->ibays;
+ 	foreach my $ibay (@ibays)
+ 	{
+ 	    my $key = $ibay->key;
