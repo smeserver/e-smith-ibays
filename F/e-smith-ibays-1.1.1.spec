@@ -2,7 +2,7 @@ Summary: e-smith server and gateway - ibays module
 %define name e-smith-ibays
 Name: %{name}
 %define version 1.1.1
-%define release 10sme01
+%define release 12
 Version: %{version}
 Release: %{release}
 License: GPL
@@ -17,7 +17,8 @@ Patch4: e-smith-ibays-1.1.1-07.mitel_patch
 Patch5: e-smith-ibays-1.1.1-08.mitel_patch
 Patch6: e-smith-ibays-1.1.1-09.mitel_patch
 Patch7: e-smith-ibays-1.1.1-10.mitel_patch
-Patch8: e-smith-ibays-1.1.1-ibaymodify.patch
+Patch8: e-smith-ibays-1.1.1-11.mitel_patch
+Patch9: e-smith-ibays-1.1.1-12.mitel_patch
 Packager: e-smith developers <bugs@e-smith.com>
 BuildRoot: /var/tmp/%{name}-%{version}-%{release}-buildroot
 BuildArchitectures: noarch
@@ -33,8 +34,13 @@ AutoReqProv: no
 e-smith server and gateway software - ibays module.
 
 %changelog
-* Thu Aug 19 2005 Gordon Rowell <gordonr@gormand.com.au>
-- [1.1.1-10sme01]
+* Mon Aug 22 2005 Charlie Brady <charlieb@e-smith.com>
+- [1.1.1-12]
+- Fix missing "use esmith::util" in ibay plugin lib. [SF: 1265684]
+- Don't display ibay Plugin choice if "none" is the only choice. [SF: 1263740]
+
+* Fri Aug 19 2005 Gordon Rowell <gordonr@gormand.com.au>
+- [1.1.1-11]
 - Need to check $ibay->prop('type') not $ibay->type [SF: 1260237]
 
 * Tue Aug  9 2005 Shad Lords <slords@mail.com>
@@ -161,6 +167,7 @@ e-smith server and gateway software - ibays module.
 %patch6 -p1
 %patch7 -p1
 %patch8 -p1
+%patch9 -p1
 
 %pre
 %post

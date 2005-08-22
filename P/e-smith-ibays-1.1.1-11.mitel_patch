@@ -1,6 +1,7 @@
-diff -Nur -x '*.orig' -x '*.rej' e-smith-ibays-1.1.1/root/etc/e-smith/events/actions/ibay-modify mezzanine_patched_e-smith-ibays-1.1.1/root/etc/e-smith/events/actions/ibay-modify
---- e-smith-ibays-1.1.1/root/etc/e-smith/events/actions/ibay-modify	2005-08-19 01:06:43.036102264 -0600
-+++ mezzanine_patched_e-smith-ibays-1.1.1/root/etc/e-smith/events/actions/ibay-modify	2005-08-19 01:05:31.149030760 -0600
+Index: e-smith-ibays/e-smith-ibays.spec
+diff -u e-smith-ibays/root/etc/e-smith/events/actions/ibay-modify:1.5 e-smith-ibays/root/etc/e-smith/events/actions/ibay-modify:1.6
+--- e-smith-ibays/root/etc/e-smith/events/actions/ibay-modify:1.5	Thu Jul 28 14:42:07 2005
++++ e-smith-ibays/root/etc/e-smith/events/actions/ibay-modify	Fri Aug 19 11:21:40 2005
 @@ -36,11 +36,12 @@
  die "ibayName argument missing" unless defined ($ibayName);
  
