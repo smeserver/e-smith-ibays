@@ -2,7 +2,7 @@ Summary: e-smith server and gateway - ibays module
 %define name e-smith-ibays
 Name: %{name}
 %define version 1.1.1
-%define release 12
+%define release 13
 Version: %{version}
 Release: %{release}
 License: GPL
@@ -19,6 +19,7 @@ Patch6: e-smith-ibays-1.1.1-09.mitel_patch
 Patch7: e-smith-ibays-1.1.1-10.mitel_patch
 Patch8: e-smith-ibays-1.1.1-11.mitel_patch
 Patch9: e-smith-ibays-1.1.1-12.mitel_patch
+Patch10: e-smith-ibays-1.1.1-13.mitel_patch
 Packager: e-smith developers <bugs@e-smith.com>
 BuildRoot: /var/tmp/%{name}-%{version}-%{release}-buildroot
 BuildArchitectures: noarch
@@ -34,6 +35,10 @@ AutoReqProv: no
 e-smith server and gateway software - ibays module.
 
 %changelog
+* Wed Aug 24 2005 Charlie Brady <charlieb@e-smith.com>
+- [1.1.1-13]
+- Default plugin to none in esFM::ibay::create_ibay(). [SF: 1267897]
+
 * Mon Aug 22 2005 Charlie Brady <charlieb@e-smith.com>
 - [1.1.1-12]
 - Fix missing "use esmith::util" in ibay plugin lib. [SF: 1265684]
@@ -168,6 +173,7 @@ e-smith server and gateway software - ibays module.
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
+%patch10 -p1
 
 %pre
 %post
