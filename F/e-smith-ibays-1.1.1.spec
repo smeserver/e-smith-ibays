@@ -2,7 +2,7 @@ Summary: e-smith server and gateway - ibays module
 %define name e-smith-ibays
 Name: %{name}
 %define version 1.1.1
-%define release 13
+%define release 14
 Version: %{version}
 Release: %{release}
 License: GPL
@@ -20,11 +20,13 @@ Patch7: e-smith-ibays-1.1.1-10.mitel_patch
 Patch8: e-smith-ibays-1.1.1-11.mitel_patch
 Patch9: e-smith-ibays-1.1.1-12.mitel_patch
 Patch10: e-smith-ibays-1.1.1-13.mitel_patch
+Patch11: e-smith-ibays-1.1.1-14.mitel_patch
 Packager: e-smith developers <bugs@e-smith.com>
 BuildRoot: /var/tmp/%{name}-%{version}-%{release}-buildroot
 BuildArchitectures: noarch
 Requires: e-smith-base >= 4.13.15-76
 Requires: perl(CGI::FormMagick)
+Requires: e-smith-formmagick >= 1.3.0-10
 Conflicts: e-smith-apache < 0.1.1
 BuildRequires: perl, perl(Test::Inline)
 BuildRequires: e-smith-devtools >= 1.11.0-03
@@ -35,6 +37,13 @@ AutoReqProv: no
 e-smith server and gateway software - ibays module.
 
 %changelog
+* Mon Sep  5 2005 Tony Clayton <apc@e-smith.com>
+- [1.1.1-14]
+- Add dependency on e-smith-formmagick >= 1.3.0-10
+- Fix default plugin display [SF: 1271745,1263740]
+- Clean up, add POD to IbayPlugin modules [SF: 1263740]
+- Support versioning of plugins, do version checks in ibay panel
+
 * Wed Aug 24 2005 Charlie Brady <charlieb@e-smith.com>
 - [1.1.1-13]
 - Default plugin to none in esFM::ibay::create_ibay(). [SF: 1267897]
@@ -174,6 +183,7 @@ e-smith server and gateway software - ibays module.
 %patch8 -p1
 %patch9 -p1
 %patch10 -p1
+%patch11 -p1
 
 %pre
 %post

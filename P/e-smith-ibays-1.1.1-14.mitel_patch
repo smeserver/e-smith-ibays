@@ -1,0 +1,1258 @@
+Index: e-smith-ibays/e-smith-ibays.spec
+diff -u e-smith-ibays/root/etc/e-smith/locale/en-us/etc/e-smith/web/functions/ibays:1.2 e-smith-ibays/root/etc/e-smith/locale/en-us/etc/e-smith/web/functions/ibays:1.3
+--- e-smith-ibays/root/etc/e-smith/locale/en-us/etc/e-smith/web/functions/ibays:1.2	Tue Sep  9 15:12:01 2003
++++ e-smith-ibays/root/etc/e-smith/locale/en-us/etc/e-smith/web/functions/ibays	Tue Sep  6 01:49:52 2005
+@@ -363,5 +363,44 @@
+ 		<base>PLUGIN</base>
+ 		<trans>Plugin</trans>
+ 	</entry>
++	<entry>
++		<base>PLUGIN_NOT_FOUND_IN_IBAY</base>
++		<trans>
++            <![CDATA[
++			No versions of the {$plugin} plugin were found in the
++			{$name} ibay.  The plugin may not be properly installed.  
++			You can attempt to repair the ibay by completing this Modify
++			operation.
++			<br>{$plugin} version on system: {$ver_avail}
++			]]>
++		</trans>
++	</entry>
++	<entry>
++		<base>PLUGIN_OLDER_IN_IBAY</base>
++		<trans>
++            <![CDATA[
++			The {$name} ibay contains an <b>older</b> version
++			of of the {$plugin} plugin than is installed on your system.
++			You can upgrade the ibay by completing this Modify operation.
++			<br>{$plugin} version in ibay: {$ver_ibay}
++			<br>{$plugin} version on system: {$ver_avail}
++			]]>
++		</trans>
++	</entry>
++	<entry>
++		<base>PLUGIN_NEWER_IN_IBAY</base>
++		<trans>
++            <![CDATA[
++			The {$name} ibay contains a <b>newer</b> version
++			of of the {$plugin} plugin than is installed on your
++			system.  Completing this Modify operation may cause
++			unexpected results or data loss in this ibay. It is highly
++			recommended that you upgrade the plugin on your system before
++			attempting to modify this ibay.
++			<br>{$plugin} version in ibay: {$ver_ibay}
++			<br>{$plugin} version on system: {$ver_avail}
++			]]>
++		</trans>
++	</entry>
+ 
+ </lexicon>
+Index: e-smith-ibays/root/etc/e-smith/web/functions/ibays
+diff -u e-smith-ibays/root/etc/e-smith/web/functions/ibays:1.4 e-smith-ibays/root/etc/e-smith/web/functions/ibays:1.5
+--- e-smith-ibays/root/etc/e-smith/web/functions/ibays:1.4	Mon Aug 22 14:45:00 2005
++++ e-smith-ibays/root/etc/e-smith/web/functions/ibays	Tue Sep  6 01:49:52 2005
+@@ -107,9 +107,8 @@
+         <field type="text" id="description" validation="validate_description">
+             <label>DESCRIPTION</label>
+         </field>
+-        <field type="select" id="Plugin" options="ibayPlugin_list()" value="none" display="ibayPlugin_show()">
+-        <label>PLUGIN</label>
+-        </field>
++
++        <subroutine src="print_ibay_plugin_field()" />
+ 
+         <field type="select" id="group" options="group_list()">
+             <label>GROUP</label>
+Index: e-smith-ibays/root/usr/lib/perl5/site_perl/esmith/IbayPlugin.pm
+diff -u e-smith-ibays/root/usr/lib/perl5/site_perl/esmith/IbayPlugin.pm:1.1 e-smith-ibays/root/usr/lib/perl5/site_perl/esmith/IbayPlugin.pm:1.2
+--- e-smith-ibays/root/usr/lib/perl5/site_perl/esmith/IbayPlugin.pm:1.1	Tue Sep  9 15:12:01 2003
++++ e-smith-ibays/root/usr/lib/perl5/site_perl/esmith/IbayPlugin.pm	Tue Sep  6 01:49:52 2005
+@@ -3,6 +3,51 @@
+ use strict;
+ use File::Basename;
+ 
++=pod
++
++=head1 NAME
++
++esmith::IbayPlugin - factory class for creating IbayPlugin objects
++
++=head1 SYNOPSIS
++
++use esmith::IbayPlugin;
++
++my @pluginNames = esmith::IbayPlugin->list();
++
++# load esmith::IbayPlugin::MyPlugin plugin:
++my $plugin = esmith::IbayPlugin->load('MyPlugin');
++
++# load esmith::IbayPlugin::My_Other_Plugin plugin
++# both of these will work:
++my $plugin = esmith::IbayPlugin->load('My Other Plugin');
++my $plugin = esmith::IbayPlugin->load('My_Other_Plugin');
++
++=head1 DESCRIPTION
++
++Factory class for listing IbayPlugin modules, and loading/instantiating them.
++
++For information on the IbayPlugin interface and designing IbayPlugins, see
++the esmith::IbayPlugin::none module documentation.
++
++=head1 METHODS
++
++=head2 load()
++
++The load() class method takes the plugin name as its only parameter.  If the
++plugin name is undef, empty, or 0, then 'none' is used instead.
++
++Any spaces in the plugin name are replaced by underscore '_' characters, so
++the plugin's friendly name can be used during instantiation.
++
++The specified plugin module "esmith::IbayPlugin::${plugin}" is then loaded,
++and a plugin object instantiated and returned. 
++
++If a plugin was specified, but the plugin module doesn't exist, then the
++usual "Can't locate X in @INC..." perl exception occurs.
++
++=cut
++
+ sub load
+ {
+     my $class = shift;
+@@ -10,18 +55,42 @@
+     # untaint 
+     if ($name =~ /^(.*)$/)
+     {
+-	$name = $1;
++	($name = $1) =~ s/ /_/g;
+     }
+     no strict 'refs';
+     my $pkg = "esmith::IbayPlugin::${name}";
+     eval "use $pkg";
++    die $@ if $@;
+     my $className = $pkg->new;
+     return $className;
+ }
+ 
++=head2 list()
++
++The list() class method takes no parameters.  It searches the
++esmith::IbayPlugin::* namespace for all available plugins, and returns an
++array of the plugin names.
++
++Any underscore characters '_' in the plugin names are replaced by spaces, so
++the plugin names can be automatically translated to their visible names in the
++ibay panel.
++
++IE: a plugin module named 
++
++"esmith::IbayPlugin::Third_Party_Application_Name"
++
++would appear as 
++
++"Third Party Application Name" 
++
++in the ibay panel.
++
++=cut
++
+ sub list
+ {
+-    my @classes = map {basename($_,'.pm')} glob '/etc/e-smith/IbayPlugin/*';
++    my @classes = map {$_=basename($_,'.pm'); s/_/ /; $_;} 
++            glob '/etc/e-smith/IbayPlugin/*.pm';
+     return @classes;
+ }
+ 
+Index: e-smith-ibays/root/usr/lib/perl5/site_perl/esmith/FormMagick/Panel/ibays.pm
+diff -u e-smith-ibays/root/usr/lib/perl5/site_perl/esmith/FormMagick/Panel/ibays.pm:1.7 e-smith-ibays/root/usr/lib/perl5/site_perl/esmith/FormMagick/Panel/ibays.pm:1.8
+--- e-smith-ibays/root/usr/lib/perl5/site_perl/esmith/FormMagick/Panel/ibays.pm:1.7	Wed Aug 24 12:19:35 2005
++++ e-smith-ibays/root/usr/lib/perl5/site_perl/esmith/FormMagick/Panel/ibays.pm	Tue Sep  6 01:49:52 2005
+@@ -1,7 +1,7 @@
+ #!/usr/bin/perl -w 
+ 
+ #
+-# $Id: ibays.pm,v 1.6 2005/08/22 18:45:00 charlieb Exp $
++# $Id: ibays.pm,v 1.4 2004/11/11 20:25:59 charlieb Exp $
+ #
+ 
+ package    esmith::FormMagick::Panel::ibays;
+@@ -42,7 +42,7 @@
+     wherenext
+ );
+ 
+-our $VERSION = sprintf '%d.%03d', q$Revision: 1.6 $ =~ /: (\d+).(\d+)/;
++our $VERSION = sprintf '%d.%03d', q$Revision: 1.4 $ =~ /: (\d+).(\d+)/;
+ 
+ our $accountdb = esmith::AccountsDB->open();
+ our $configdb = esmith::ConfigDB->open();
+@@ -89,11 +89,20 @@
+ 
+ sub new 
+ {
+-    shift;
+-    my $self = esmith::FormMagick->new();
++    my $proto = shift;
++    my $class = ref($proto) || $proto;
++    my $self = esmith::FormMagick::new($class);
+     $self->{calling_package} = (caller)[0];
+     $self->{defaultMaxLength} = 12;
+-    bless $self;
++
++    my $pluginName = $self->cgi->param('Plugin');
++    unless ($pluginName) {
++        my $name = $self->cgi->param('name') || '';
++        my $rec = $accountdb->get($name);
++        $pluginName = $rec ? $rec->prop('Plugin') : '';
++    }
++    $self->{ibayPlugin} = esmith::IbayPlugin->load($pluginName);
++    $self->{ibayPlugin}->ibay_panel_load_form_elements($self);
+     return $self;
+ }
+ 
+@@ -144,76 +153,78 @@
+                   esmith::cgi::genSmallCell($q, $action_h,"header", 3)),"\n";
+     my $scriptname = basename($0);
+ 
+-    foreach my $i (@ibays) {
++    foreach my $i (@ibays) 
++    {
+         my $ibayname = $i->key();
+         my $ibaydesc = $i->prop('Name');
+-	my $ibayPlugin = $i->prop('Plugin') || '&nbsp;';
+-	my $modifiable = $i->prop('Modifiable') || 'yes';
+-	my $passwordable = $i->prop('Passwordable') || 'yes';
+-	my $removable = $i->prop('Removable') || 'yes';
+-	my $needPassword = grep { $_ eq $i->prop('PublicAccess') } 
+-				qw(local-pw global-pw global-pw-remote);
++
++        my $pluginName = $i->prop('Plugin') || 'none';
++        my $ibayPlugin = esmith::IbayPlugin->load($pluginName);
++        my $pluginVersionIbay = $ibayPlugin->version_in_ibay($ibayname) || '';
++        my $pluginVersionAvail = $ibayPlugin->version_available($ibayname) || '';
++
++        # Plugin problem could be:
++        #   - missing from ibay (manually deleted?) ? highlight Plugin & Modify
++        #   - older version in ibay ? highlight Plugin & Modify
++        #   - newer version in ibay ? highlight Plugin & Modify
++        my $pluginProblem = (!$pluginVersionIbay 
++                            || ($pluginVersionIbay ne $pluginVersionAvail));
++
++        my $modifiable = $i->prop('Modifiable') || 'yes';
++        my $passwordable = $i->prop('Passwordable') || 'yes';
++        my $removable = $i->prop('Removable') || 'yes';
++        my $needPassword = grep { $_ eq $i->prop('PublicAccess') } 
++                                qw(local-pw global-pw global-pw-remote);
+ 
+         my $params = $self->build_ibay_cgi_params($ibayname, $i->props());
+ 
+ 
+-	my $href = "$scriptname?$params&action=modify&wherenext=";
++        my $href = "$scriptname?$params&action=modify&wherenext=";
+ 
+         my $actionModify = '&nbsp;';
+-	if ($modifiable eq 'yes')
+-	{
+-	    $actionModify .= $q->a({href => "${href}CreateModify"}, $modify) 
+-			  . '&nbsp;';
+-	}
+-
+-	my $actionResetPw = '&nbsp;';
+-	if ($passwordable eq 'yes')
+-	{
+-	    if ($i->prop('PasswordSet') ne 'yes' && $needPassword)
+-	    {
+-		$actionResetPw  .= $q->a({href => "${href}Password", 
+-				    class => "error"}, $resetpw) 
+-	    }
+-	    else
+-	    {
+-		$actionResetPw  .= $q->a({href => "${href}Password"}, $resetpw) 
+-	    }
+-	    $actionResetPw .= '&nbsp';
+-	}
+-
+-	my $actionRemove = '&nbsp;';
+-	if ($removable eq 'yes')
+-	{
+-	    $actionRemove .= $q->a({href => "${href}Remove"}, $remove) 
+-			  . '&nbsp';
+-	}
++        if ($modifiable eq 'yes')
++        {
++            if ($pluginProblem) {
++                $actionModify .= $q->a({href => "${href}CreateModify", 
++                            class => "error"}, $modify) . '&nbsp;';
++            }
++            else {
++                $actionModify .= $q->a({href => "${href}CreateModify"},$modify)
++                      . '&nbsp;';
++            }
++        }
++
++        my $actionResetPw = '&nbsp;';
++        if ($passwordable eq 'yes')
++        {
++            if ($i->prop('PasswordSet') ne 'yes' && $needPassword)
++            {
++            $actionResetPw  .= $q->a({href => "${href}Password", 
++                        class => "error"}, $resetpw) 
++            }
++            else
++            {
++            $actionResetPw  .= $q->a({href => "${href}Password"}, $resetpw) 
++            }
++            $actionResetPw .= '&nbsp';
++        }
++
++        my $actionRemove = '&nbsp;';
++        if ($removable eq 'yes')
++        {
++            $actionRemove .= $q->a({href => "${href}Remove"}, $remove) 
++                  . '&nbsp';
++        }
+ 
+-	print $q->Tr (
++        print $q->Tr (
+             esmith::cgi::genSmallCell($q, $ibayname,"normal"),
+             esmith::cgi::genSmallCell($q, $ibaydesc,"normal"),
+-            esmith::cgi::genSmallCell($q, $ibayPlugin,"normal"),
++            $pluginProblem 
++                ? esmith::cgi::genSmallRedCell($q, $pluginName,"normal")
++                : esmith::cgi::genSmallCell($q, $pluginName,"normal"),
+             esmith::cgi::genSmallCell($q, $actionModify,"normal"),
+             esmith::cgi::genSmallCell($q, $actionResetPw,"normal"),
+             esmith::cgi::genSmallCell($q, $actionRemove,"normal"));
+-
+-#                  esmith::cgi::genSmallCell($q, $q->a(
+-#                      {href => "$scriptname?$params&action=modify&wherenext=CreateModify"},$modify),"normal"),
+-#                  esmith::cgi::genSmallCell($q, $q->a(
+-#                      {href => "$scriptname?$params&action=modify&wherenext=Password"},$resetpw),"normal"),
+-#                  esmith::cgi::genSmallCell($q, $q->a(
+-#                      {href => "$scriptname?$params&action=modify&wherenext=Remove"},$remove),"normal"));
+-#        print qq(
+-#    <tr>
+-#        <td>$ibayname</td>
+-#        <td>$ibaydesc</td>
+-#        <td><a href="$scriptname?$params&action=modify&wherenext=CreateModify">
+-#            $modify</a></td>
+-#        <td><a href="$scriptname?$params&wherenext=Password">
+-#            $fontopen $resetpw... $fontclose</a></td>
+-#        <td><a href="$scriptname?$params&wherenext=Remove">
+-#            $remove...</a></td>
+-#    </tr>
+-#        );
+     }
+ 
+     print $q->end_table,"\n";
+@@ -246,9 +257,9 @@
+     my $maxLength = $configdb->get('maxIbayNameLength');
+     $maxLength = $maxLength ? $maxLength->value : $self->{defaultMaxLength};
+     print qq(<tr><td colspan="2">) . $self->localise('NAME_FIELD_DESC',
+-	{maxLength => $maxLength}) . qq(</td></tr>);
++        {maxLength => $maxLength}) . qq(</td></tr>);
+     print qq(<tr><td class="sme-noborders-label">) . 
+-	$self->localise('NAME_LABEL') . qq(</td>\n);
++        $self->localise('NAME_LABEL') . qq(</td>\n);
+     if ($action eq 'modify' and $in) {
+         print qq(
+             <td class="sme-noborders-content">$in 
+@@ -274,8 +285,8 @@
+                 $rec->prop('PublicAccess'));
+             $q->param(-name=>'CgiBin',-value=>
+                 $rec->prop('CgiBin'));
+-	    $q->param(-name=>'Plugin',-value=>
+-		$rec->prop('Plugin'));
++            $q->param(-name=>'Plugin',-value=>
++                $rec->prop('Plugin'));
+         }
+     } else {
+         print qq(
+@@ -290,6 +301,58 @@
+ 
+ }
+ 
++
++sub print_ibay_plugin_field
++{
++    my $self = shift;
++    my $action = $self->cgi->param('action') || '';
++    my $ibayName = $self->cgi->param('name') || '';
++    my $pluginName = $self->cgi->param('Plugin') || 'none';
++    my $plugin_list = ibayPlugin_list();
++    print qq(<tr><td class="sme-noborders-label">) . 
++        $self->localise('PLUGIN') . qq(</td>\n);
++    if ($action eq 'modify') 
++    {
++        print qq(<td class="sme-noborders-content">);
++        my $ver_ibay = $self->{ibayPlugin}->version_in_ibay($ibayName);
++        my $ver_avail = $self->{ibayPlugin}->version_available($ibayName);
++        if (!$ver_ibay) {
++            my $err = $self->localise('PLUGIN_NOT_FOUND_IN_IBAY',
++                    {plugin=>$pluginName, 
++                     ver_ibay=>$ver_ibay, ver_avail=>$ver_avail});
++            print qq(<div class="error">$err</div>);
++        }
++        elsif ($ver_ibay < $ver_avail) {
++            my $err = $self->localise('PLUGIN_OLDER_IN_IBAY',
++                    {plugin=>$pluginName, 
++                     ver_ibay=>$ver_ibay, ver_avail=>$ver_avail});
++            print qq(<div class="error">$err</div>);
++        }
++        elsif ($ver_ibay > $ver_avail) {
++            my $err = $self->localise('PLUGIN_NEWER_IN_IBAY',
++                    {plugin=>$pluginName, 
++                     ver_ibay=>$ver_ibay, ver_avail=>$ver_avail});
++            print qq(<div class="error">$err</div>);
++        }
++        else {
++            print qq($pluginName $ver_ibay);
++        }
++        print qq(<input type="hidden" name="Plugin" value="$pluginName">);
++        print qq(</td>);
++    }
++    elsif (scalar(@$plugin_list) == 1) {
++        print qq(<td class="sme-noborders-content">$pluginName</td>);
++        print qq(<input type="hidden" name="Plugin" value="$pluginName">);
++    }
++    else {
++        print qq(<td class="sme-noborders-content">) . 
++            $self->cgi->popup_menu(-name=>'Plugin', -values=>$plugin_list, 
++                                -default=>$pluginName) . qq(</td></tr>);
++    }
++    return undef;
++}
++
++
+ =pod
+ 
+ =head2 print_vhost_message()
+@@ -305,20 +368,20 @@
+ =cut
+ 
+ sub print_vhost_message {
+-	my $self = shift;
+-	my $q = $self->{cgi};
+-	my $name = $q->param('name');
+-
+-	my $domaindb = esmith::DomainsDB->open();
+-	my @domains = $domaindb->get_all_by_prop(Content => $name);
+-	my $vhostListItems = join "\n",
+-		(map ($q->li($_->key." ".$_->prop('Description')),
+-		@domains));
+-	if ($vhostListItems)
+-	{
+-		print $self->localise('VHOST_MESSAGE', {vhostList => $vhostListItems});
+-	}
+-	return undef;
++    my $self = shift;
++    my $q = $self->{cgi};
++    my $name = $q->param('name');
++
++    my $domaindb = esmith::DomainsDB->open();
++    my @domains = $domaindb->get_all_by_prop(Content => $name);
++    my $vhostListItems = join "\n",
++        (map ($q->li($_->key." ".$_->prop('Description')),
++        @domains));
++    if ($vhostListItems)
++    {
++        print $self->localise('VHOST_MESSAGE', {vhostList => $vhostListItems});
++    }
++    return undef;
+ }
+ 
+ =head2 group_list()
+@@ -398,26 +461,12 @@
+     return \@list;
+ }
+ 
+-=head2 ibayPlugin_show
+-
+-ibayPlugin_show() returns a boolean indicator of whether to display the plugin list or not.
+-We don't show the list if the only item is "none".
+-
+-=cut
+-
+-sub ibayPlugin_show
+-{
+-    return scalar grep {$_ ne 'none'} esmith::IbayPlugin->list;
+-}
+-
+ sub ibay_plugin_load_fields
+ {
+     my $self = shift;
+     my $name = $self->cgi->param('name');
+-    my $pluginName = $self->cgi->param('Plugin');
+-    my $ibayPlugin = esmith::IbayPlugin->load($pluginName);
+     my $acct = $accountdb->get($name);
+-    $ibayPlugin->ibay_panel_load_fields($self, $acct);
++    $self->{ibayPlugin}->ibay_panel_load_fields($self, $acct);
+ 
+     return undef;
+ }
+@@ -467,9 +516,9 @@
+         return "OK";
+     } else {
+         return $self->localise("MAX_IBAY_NAME_LENGTH_ERROR",
+-	    {acctName => $data, 
+-	    maxIbayNameLength => $max, 
+-	    maxLength => $max});
++            {acctName => $data, 
++             maxIbayNameLength => $max, 
++             maxLength => $max});
+     }
+ }
+ 
+@@ -490,51 +539,38 @@
+     my $type;
+     if (defined $rec)
+     {
+-	my $type = $rec->prop('type');
+-	if ($type eq "pseudonym")
+-	{
+-	    my $acct = $rec->prop("Account");
+-	    my $acct_type = $accountdb->get($acct)->prop('type');
+-
+-	    return $self->localise('ACCT_CLASHES_WITH_PSEUDONYM',
+-		{acctName => $name, acctType => $acct_type,
+-		acct => $acct});
+-	}
++		my $type = $rec->prop('type');
++		if ($type eq "pseudonym")
++		{
++			my $acct = $rec->prop("Account");
++			my $acct_type = $accountdb->get($acct)->prop('type');
++
++			return $self->localise('ACCT_CLASHES_WITH_PSEUDONYM',
++				{acctName => $name, acctType => $acct_type, acct => $acct});
++		}
+     }
+     elsif (defined getpwnam($name) || defined getgrnam($name))
+     {
+-	$type = 'system';
++        $type = 'system';
+     }
+     else
+     {
+-	# No account record and no account
+-	return 'OK';
++        # No account record and no account
++        return 'OK';
+     }
+     return $self->localise('ACCOUNT_EXISTS',
+-	    {acctName => $name, acctType => $type});
++        {acctName => $name, acctType => $type});
+ }
+ 
+ =head1 THE ROUTINES THAT ACTUALLY DO THE WORK
+ 
+ =cut
+ 
+-# called by CGI::FormMagick::new()
+-sub munge_fm_obj {
+-    my $self = shift;
+-
+-    # load in the IbayPlugin
+-    my $pluginName = $self->cgi->param('Plugin');
+-    my $ibayPlugin = esmith::IbayPlugin->load($pluginName);
+-    $ibayPlugin->ibay_panel_load_form_elements($self);
+-}
+-
+ sub create_modify_post_event {
+     my $self = shift;
+ 
+     # delegate to the IbayPlugin
+-    my $pluginName = $self->cgi->param('Plugin');
+-    my $ibayPlugin = esmith::IbayPlugin->load($pluginName);
+-    $ibayPlugin->create_modify_post_event($self);
++    $self->{ibayPlugin}->create_modify_post_event($self);
+ }
+ 
+ 
+@@ -546,16 +582,15 @@
+ sub handle_ibays {
+     my ($self) = @_;
+     
+-    # delegate to the IbayPlugin
+-    my $pluginName = $self->cgi->param('Plugin');
+-    my $ibayPlugin = esmith::IbayPlugin->load($pluginName);
+-    $self->wherenext($ibayPlugin->handle_ibays_wherenext());
+ 
+     if ($self->cgi->param("action") eq "create") {
+         $self->create_ibay();
+     } else {
+         $self->modify_ibay();
+     }
++
++    # delegate to the IbayPlugin
++    $self->wherenext($self->{ibayPlugin}->handle_ibays_wherenext());
+ }
+ 
+ =head2 print_save_or_add_button()
+@@ -601,24 +636,23 @@
+             Group        => $self->cgi->param('group'),
+             PublicAccess => $self->cgi->param('publicAccess'),
+             UserAccess   => $self->cgi->param('userAccess'),
+-	    Plugin       => $self->cgi->param('Plugin') || 'none',
++            Plugin       => $self->cgi->param('Plugin'),
+             Uid          => $uid,
+             Gid          => $uid,
+             PasswordSet  => 'no',
+             type         => 'ibay',
+-        }) ) {
++        }) ) 
++    {
+ 
+-	# delegate to the IbayPlugin
+-	my $pluginName = $self->cgi->param('Plugin');
+-	my $ibayPlugin = esmith::IbayPlugin->load($pluginName);
+-	$ibayPlugin->ibay_panel_save_fields($self, $acct);
++        # delegate to the IbayPlugin
++        $self->{ibayPlugin}->ibay_panel_save_fields($self, $acct);
+ 
+-	# Untaint $name before use in system()
+-	$name =~ /(.+)/; $name = $1;
++        # Untaint $name before use in system()
++        $name =~ /(.+)/; $name = $1;
+         if (system ("/sbin/e-smith/signal-event", "ibay-create", $name) == 0) {
+-	    $self->success("SUCCESSFULLY_CREATED_IBAY");
++            $self->success("SUCCESSFULLY_CREATED_IBAY");
+         } else {
+-	    $self->error("ERROR_WHILE_CREATING_IBAY");
++            $self->error("ERROR_WHILE_CREATING_IBAY");
+         }
+     } else {
+         $self->error('CANT_CREATE_IBAY');
+@@ -636,18 +670,18 @@
+                 Group        => $self->cgi->param('group'),
+                 PublicAccess => $self->cgi->param('publicAccess'),
+                 UserAccess   => $self->cgi->param('userAccess'),
+-		Plugin       => $self->cgi->param('Plugin'),
++                Plugin       => $self->cgi->param('Plugin'),
+             );
+ 
+-	    # delegate to the IbayPlugin
+-	    my $pluginName = $self->cgi->param('Plugin');
+-	    my $ibayPlugin = esmith::IbayPlugin->load($pluginName);
+-	    $ibayPlugin->ibay_panel_save_fields($self, $acct);
+-
+-	    # Untaint $name before use in system()
+-	    $name =~ /(.+)/; $name = $1;
+-            if (system ("/sbin/e-smith/signal-event", "ibay-modify", $name) == 0) {
+-		$self->success("SUCCESSFULLY_MODIFIED_IBAY");
++            # delegate to the IbayPlugin
++            $self->{ibayPlugin}->ibay_panel_save_fields($self, $acct);
++
++            # Untaint $name before use in system()
++            $name =~ /(.+)/; $name = $1;
++            if (system ("/sbin/e-smith/signal-event", "ibay-modify", 
++                $name) == 0) 
++            {
++                $self->success("SUCCESSFULLY_MODIFIED_IBAY");
+             } else {
+                 $self->error("ERROR_WHILE_MODIFYING_IBAY");
+             }
+@@ -677,11 +711,13 @@
+                 $d->set_prop(Content => 'Primary');
+             }
+ 
+-	    # Untaint $name before use in system()
+-	    $name =~ /(.+)/; $name = $1;
+-            if (system ("/sbin/e-smith/signal-event", "ibay-delete", $name) == 0) {
++            # Untaint $name before use in system()
++            $name =~ /(.+)/; $name = $1;
++            if (system ("/sbin/e-smith/signal-event", "ibay-delete", 
++                $name) == 0) 
++            {
+                 $self->success("SUCCESSFULLY_DELETED_IBAY");
+-		$acct->delete();
++                $acct->delete();
+             } else {
+                 $self->error("ERROR_WHILE_DELETING_IBAY");
+             }
+@@ -707,10 +743,14 @@
+     my $acct;
+     if (($acct = $accountdb->get($name)) && ($acct->prop('type') eq 'ibay')) {
+         esmith::util::setIbayPassword ($acct->key, $newPass);
++        # delegate to ibay plugin
++        $self->{ibayPlugin}->reset_password($acct->key, $newPass);
+         $acct->set_prop('PasswordSet', 'yes');
+-	# Untaint $name before use in system()
+-	$name =~ /(.+)/; $name = $1;
+-        if (system ("/sbin/e-smith/signal-event", "password-modify", $name) == 0) {
++        # Untaint $name before use in system()
++        $name =~ /(.+)/; $name = $1;
++        if (system ("/sbin/e-smith/signal-event", "password-modify", 
++            $name) == 0) 
++        {
+             $self->success("SUCCESSFULLY_RESET_PASSWORD");
+         } else {
+             $self->error("ERROR_WHILE_RESETTING_PASSWORD");
+@@ -737,31 +777,26 @@
+ 
+ sub getExtraParams
+ {
+-	my $self = shift;
+-	my $q = $self->{cgi};
+-	my $name = $q->param('name');
+-	my $desc = '';
+-
+-	if ($name)
+-	{
+-		my $acct = $accountdb->get($name);
+-		if ($acct)
+-		{
+-			$desc = $acct->prop('Name');
+-		}
+-	}
+-	return (name => $name, description => $desc);
++    my $self = shift;
++    my $q = $self->{cgi};
++    my $name = $q->param('name');
++    my $desc = '';
+ 
+-	# delegate to the IbayPlugin
+-	my $pluginName = $q->param->('Plugin');
+-	my $ibayPlugin = esmith::IbayPlugin->load($pluginName);
+-
+-	my %params = (
+-	    name => $name,
+-	    description => $desc,
+-	    $ibayPlugin->get_extra_params($self),
+-	);
+-	return %params;
++    if ($name)
++    {
++        my $acct = $accountdb->get($name);
++        if ($acct)
++        {
++            $desc = $acct->prop('Name');
++        }
++    }
++    # delegate to the IbayPlugin
++    my %params = (
++        name => $name,
++        description => $desc,
++        $self->{ibayPlugin}->get_extra_lexicon_params($self),
++    );
++    return %params;
+ }
+ 
+ =head2 verifyPasswords()
+@@ -771,15 +806,15 @@
+ =cut
+ 
+ sub verifyPasswords {
+-        my $self = shift;
+-        my $pass2 = shift;
++    my $self = shift;
++    my $pass2 = shift;
+ 
+-        my $pass1 = $self->{cgi}->param('newPass');
+-        unless ($pass1 eq $pass2) {
+-                $self->{cgi}->param( -name => 'wherenext', -value => 'Password' );
+-                return "PASSWORD_VERIFY_ERROR";
+-        }
+-        return "OK";
++    my $pass1 = $self->{cgi}->param('newPass');
++    unless ($pass1 eq $pass2) {
++            $self->{cgi}->param( -name => 'wherenext', -value => 'Password' );
++            return "PASSWORD_VERIFY_ERROR";
++    }
++    return "OK";
+ }
+ 
+ 
+@@ -817,14 +852,14 @@
+ =cut
+ 
+ sub check_password {
+-	my $self = shift;
+-	my $pass1 = shift;
++    my $self = shift;
++    my $pass1 = shift;
+ 
+-        my $check_type;
+-        my $rec = $configdb->get('passwordstrength');
+-        $check_type = ($rec ? ($rec->prop('Ibays') || 'none') : 'none');
++    my $check_type;
++    my $rec = $configdb->get('passwordstrength');
++    $check_type = ($rec ? ($rec->prop('Ibays') || 'none') : 'none');
+ 
+-        return $self->validate_password($check_type,$pass1);
++    return $self->validate_password($check_type,$pass1);
+ }
+ 
+ 1;
+Index: e-smith-ibays/root/usr/lib/perl5/site_perl/esmith/IbayPlugin/none.pm
+diff -u e-smith-ibays/root/usr/lib/perl5/site_perl/esmith/IbayPlugin/none.pm:1.8 e-smith-ibays/root/usr/lib/perl5/site_perl/esmith/IbayPlugin/none.pm:1.9
+--- e-smith-ibays/root/usr/lib/perl5/site_perl/esmith/IbayPlugin/none.pm:1.8	Mon Aug 22 14:45:00 2005
++++ e-smith-ibays/root/usr/lib/perl5/site_perl/esmith/IbayPlugin/none.pm	Tue Sep  6 01:49:52 2005
+@@ -2,11 +2,49 @@
+ 
+ use strict;
+ use File::Find;
+-use esmith::templates;
+ use esmith::util;
++use esmith::templates;
+ use esmith::AccountsDB;
+ 
+-# You shouldn't need to override the "new" method
++=pod
++
++=head1 NAME
++
++esmith::IbayPlugin::none - IbayPlugin for setting up a 'vanilla' ibay
++
++=head1 SYNOPSIS
++
++The actual usage synopsis for IbayPlugins is automatic, and mostly transparent
++to the IbayPlugin designer.
++
++The methods outlined below provide all available plugin functionality.  A new
++IbayPlugin can be created by subclassing this default plugin and
++overriding/extending these methods as desired.
++
++
++=head1 DESCRIPTION
++
++Packages in the esmith::IbayPlugin::* namespace are not used directly by
++user-written code.  They are loaded by the Ibays server-manager panel, and
++provide hook methods to implement customized behaviour during ibay
++install/modify/delete operations.
++
++=head1 METHODS
++
++=head2 new() - Constructor
++
++The new() method instantiates a new object.  It takes no options, and
++therefore it shouldn't need to be overridden or extended by subclasses.
++
++The new() method is actually called by the singleton
++esmith::IbayPlugin->load() class method, which is the preferred interface for
++contructing IbayPlugin objects.
++
++This instantiation is done automatically in the ibays server-manager panel
++and in the ibay-create/ibay-modify events.
++
++=cut
++
+ sub new
+ {
+     my $proto = shift;
+@@ -15,19 +53,64 @@
+     bless \%attr, $class;
+ }
+ 
+-# not sure what to do with this
+-sub webAccess
+-{
+-    my $self = shift;
+-    my $ibay = $self->{ibay};
++=head2 version_in_ibay()
+ 
+-    # in httpd.conf template, the $localAccess variable holds, ie:
+-    # 127.0.0.1 192.62.102.0/255.255.255.0
+-}
++The version_in_ibay() method is responsible for determining the plugin version
++that is installed in an Ibay.  The method used in determining this version
++string is left up to the plugin designer to choose.
++
++For a third-party application, there may be a VERSION file that can be
++checked.  Alternatively, the plugin designer may choose to maintain a version
++property in the AccountsDB for the ibay.  
++
++This method is called by the ibays FormMagick object to determine whether
++there is a newer plugin version available for the ibay.  It can also be used
++in the upgrade() method to determine the appropriate measure to take during
++ibay-modify.
++
++=cut
++
++sub version_in_ibay {"1"}
++
++
++=head2 version_available()
++
++The version_available() method is responsible for determining the plugin
++version that is available on the system.  This does not necessarily
++corresponds to the version of the plugin rpm that is installed, but more
++likely the version of the application itself. 
++
++The method used in determining this version string is left up to the plugin
++designer to choose.  The version string will be compared to the version string
++in version_in_ibay() method, so the two version methods should be consistent
++with each other.  It may be easiest to checking a VERSION file in the application directory if possible.
++
++This method is called by the ibays FormMagick object to determine whether
++there is a newer plugin version available for the ibay.  It can also be used
++in the upgrade() method to determine the appropriate measure to take during
++ibay-modify.
++
++=cut
++
++sub version_available {"1"}
++
++
++=head2 install()
++
++The install() method is called from the ibay-modify action during the
++ibay-create event, and takes the ibay name as the only parameter.  It is
++responsible for creating the customized filesystem inside the ibay during
++install time.  The return value is ignored.
++
++This default 'none' plugin creates the vanilla ibay skeleton, which
++includes html, files, and cgi-bin subdirectories.  This filesystem layout can
++be overridden or extended by a subclass.
++
++See also the repair() method, which is called after the install() and
++upgrade() methods. 
++
++=cut 
+ 
+-# You will need to override the "install" method
+-# called by ibay-plugin-install action
+-# copy application files, setup filesystem structure
+ sub install
+ {
+     my $self = shift;
+@@ -49,42 +132,84 @@
+ 
+ }
+ 
+-# called by ibays panel when creating ibay (ask for extra params)
+-# called by ibays panel when modifying ibay
+-sub installCheck
+-{
+-    # 
+-}
+ 
+-# called when you change an ibay from one class to another
+-# not called by ibay-remove, as it just deletes everything
++=head2 uninstall()
++
++The uninstall() method is called from the ibay-delete action during the
++ibay-delete event, just before the ibay is removed from the filesystem. It
++takes the ibay namme as the only parameter.  The return value is ignored.
++
++This method can be overridden to perform further cleanup activities for this
++ibay, such as removing a mysql database, or expanding templates specific to
++this plugin.
++
++=cut 
++
+ sub uninstall
+ {
+-    #
++    my $self = shift;
++    my $ibayName = shift;
++    # nothing to do
+ }
+ 
+-# called by ibays panel when switching ibay plugins
+-sub uninstallCheck
+-{
+-    #
+-}
+ 
+-# called by ibays panel when upgrading application
+-sub upgradeCheck
+-{
++=head2 upgrade()
+ 
+-}
++The upgrade() method is called from the ibay-modify action during the
++ibay-modify event, and takes the ibay name as the only parameter, and the
++return value is ignored.  It is responsible for reconfiguring the ibay
++filesystem if necessary during an ibay-modify event.  It is also responsible
++for migrating from one version of a plugin to another.  
++
++=over 4
++
++=item NOTE: 
++
++The ibay panel will automatically show that an ibay as needing modification if
++the plugin's version_in_ibay() is different from the version_available().
++This is done by highlighting the plugin name and the Modify link in red on the
++main ibay page.  This method should attempt to safely handle the following
++conditions: 
++
++a) version_in_ibay() is older than version_available()
++    * the version in the ibay should be upgraded to the newer version 
++
++b) version_in_ibay() returns undef
++    * the ibay filesystem could be corrupt or missing
++    * attempt a re-install here, or throw a fatal error
++
++c) version_in_ibay() is newer than version_available()
++    * ibay panel will show a warning in Modify page that the newer ibay plugin
++      should be installed before attempting upgrade
++    * be careful here; downgrades are probably not desired
++    * probably safest to throw a fatal error, so that ibay-modify is
++      impossible for downgrade situations
++
++See also the repair() method, which is called after the install() and
++upgrade() methods. 
++
++=cut
+ 
+-# called by ibay-plugin-upgrade action
+-# perform upgrade/migration
+ sub upgrade
+ {
+     my $self = shift;
+     my $ibayName = shift;
+ }
+ 
+-# called by ibay-plugin-repair action
+-# perform sanity chown/chmod
++
++=head2 repair()
++
++The repair() method is called by the ibay-modify action at the end of the
++ibay-create and ibay-modify events.  It takes the ibay name as its only
++parameter.  The return value is ignored.
++
++This method is responsible for enforcing the ibay policies, such as setting
++the appropriate ownership and permissions on the ibay filesystem.
++All repair operations should be policy-oriented, and non-destructive; hence,
++they can safely be run during both ibay-create and ibay-modify events.
++
++=cut
++
+ sub repair
+ {
+     my $self = shift;
+@@ -192,10 +317,203 @@
+ 
+ }
+ 
+-sub ibay_panel_load_fields { 1; }
+-sub ibay_panel_save_fields { 1; }
+-sub ibay_panel_load_form_elements { "" }
+-sub ibay_panel_export_functions { qw() }
++
++=head2 reset_password()
++
++The reset_password() method is called by the FormMagick ibays panel during
++the password reset operation for the ibay.  This hook allows an IbayPlugin to
++provide additional services, or at least to share a password.
++
++=item NOTE:
++
++The ibay password is currently only used for enforcing ibay's remote-access
++policy.  If you require a password for an IbayPlugin for another reason, such
++as an admin login for a web/database application, then consider adding a new
++Create/Modify FormMagick page and setting the password in a new field, instead
++of using this reset_password hook.  The Gallery plugin is an example that does
++this.
++
++=cut
++
++sub reset_password 
++{
++    my $self = shift;
++    my $ibayName = shift;
++    my $password = shift;
++    # nothing to do
++}
++
++
++=head2 ibay_panel_load_form_elements
++
++The ibay_panel_load_form_elements() method is called by the ibays FormMagick
++object after loading the FormMagick XML structure, but before the XML parsing
++begins.  This timely hook allows an IbayPlugin to dynamically modify the
++FormMagick XML source before it is parsed during object initialization.
++
++This default implementation will load any XML specified in the __DATA__
++section at the bottom of the IbayPlugin module, and append it to the end of
++the original FormMagick page source, allowing for new pages to be added and
++existing lexicons to be extended.
++
++Here is a simple example of a __DATA__ section to add a new page:
++
++__DATA__
++    <page name="ConfigureMyPlugin" pre-event="turn_off_buttons()" 
++     post-event="handle_ibays()">
++    <title>
++    <subroutine src="ibay_plugin_load_fields()" />
++    <description>MYPLUGIN_TITLE_DESC</description>
++    <field type="text" id="MyPluginProp" validation="nonblank">
++        <label>MYPLUGIN_PROP_LABEL</label>
++    </field>
++    <subroutine src="print_button('SAVE')" />
++    </page>
++    <lexicon lang="en-us" params="getExtraParams()">
++    <entry>
++        <base>MYPLUGIN_TITLE_DESC</base>
++        <trans>My Plugin Title for {$desc}</trans>
++    </entry>
++    <entry>
++        <base>MYPLUGIN_PROP_LABEL</base>
++        <trans>My Plugin Property</trans>
++    </entry>
++    </lexicon>
++
++A data section like the one shown above can be added to an IbayPlugin subclass
++to extend FormMagick.  
++
++=item NOTE:
++
++=cut
++
++sub ibay_panel_load_form_elements 
++{ 
++    my $self = shift;
++    my $fm = shift;
++    local $/ = undef;
++    no warnings;
++    my $data = <DATA>;
++    $fm->{source} =~ s!</form>!$data</form>!;
++    return 1;
++}
++
++
++=head2 get_extra_lexicon_params()
++
++The get_extra_lexicon_params() method provides an interface for adding
++additional key=>value pairs to the parameters that are available to the
++lexicon used by the ibay plugin.  This is useful if an IbayPlugin adds new
++lexicon entries with named parameters.
++
++This method is not called directly; it is called indirectly from the
++getExtraParams() function in the ibays FormMagick object.  You will need to
++call getExtraParams() in the lexicon 'params' attribute to access these
++parameters.
++
++See the sample lexicon entries under ibay_panel_load_form_elements().
++
++=cut
++
++sub get_extra_lexicon_params
++{
++    my $self = shift;
++    my $fm = shift;
++    # no extra params; return empty hash
++    return ();
++}
++
++
++=head2 ibay_panel_load_fields()
++
++This method provides an opportunity to load new properties into the FormMagick
++object before the FormMagick page is displayed, ie: 
++    $fm->cgi->param(-name=>"MyPluginProperty", -value=>$myProp);
++
++These properties can then be displayed and modified in a custom FormMagick
++page that can be inserted into the Create/Modify page stack.  
++
++It takes two parameters: 
++ 1) the esmith::FormMagick::Panel::* object, and 
++ 2) the esmith::AccountsDB record for the ibay (an esmith::DB::Record object).
++
++This method is not called directly - it is called indirectly from the
++ibay_plugin_load_fields() function in the ibays FormMagick object.  You will
++need to call the ibay_plugin_load_fields() function from your own FormMagick
++page in order to access this method.
++
++See also the ibay_panel_load_form_elements() method.
++
++=cut
++
++sub ibay_panel_load_fields 
++{
++    my $self = shift;
++    my $fm = shift;
++    my $ibayAcct = shift;
++    # nothing to load; always return 1
++    return 1; 
++}
++
++
++=head2 ibay_panel_save_fields()
++
++The ibay_panel_save_fields() method provides an opportunity to save new
++properties from the FormMagick object into the AccountsDB record for the ibay,
++or into another config file in the ibay filesystem, or into another database. 
++
++It takes two parameters: 
++ 1) the esmith::FormMagick::Panel::* object, and 
++ 2) the esmith::AccountsDB record for the ibay (an esmith::DB::Record object).
++
++This method is not called directly - it is called indirectly from the
++ibay_plugin_save_fields() function in the ibays FormMagick object.  You will
++need to call the ibay_plugin_save_fields() function from your own FormMagick
++page in order to access this method.
++
++See also the ibay_panel_load_form_elements() method.
++
++=cut
++
++sub ibay_panel_save_fields 
++{ 
++    my $self = shift;
++    my $fm = shift;
++    my $ibayAcct = shift;
++    # nothing to save; always return 1
++    return 1; 
++}
++
++
++=head2 create_modify_post_event()
++
++The create_modify_post_event() method provides the interface for inserting  
++a custom FormMagick page into the ibay Create/Modify page stack.  It takes the
++FormMagick object as its only parameter.
++
++The default implementation of this method invokes the handle_ibays() function,
++which is the workhorse that saves the ibay parameters and invokes the
++ibay-create or ibay-modify events.
++
++However, this method can instead be used to set the name of a page which is
++visited directly after the initial Create/Modify properties page, but before
++the parameters are saved and the bay-{create,modify} events are executed.
++
++Example:
++
++sub create_modify_post_event
++{
++    my $self = shift;
++    my $fm = shift;
++    $fm->wherenext('ConfigureMyPlugin');
++}
++
++As a result, the ConfigureMyPlugin custom FormMagick page is now responsible
++for calling the handle_ibays() function in its post-event.
++
++See the sample page under the ibay_panel_load_form_elements() method.
++
++=cut
+ 
+ sub create_modify_post_event
+ {
+@@ -204,6 +522,23 @@
+     $fm->handle_ibays();
+ }
+ 
+-sub handle_ibays_wherenext { 'First' }
++
++=head2 handle_ibays_wherenext()
++
++The handle_ibays_wherenext() method provides a simple interface for specifying
++the name of the page which should be loaded if the create/modify operation
++performed by the ibays FormMagick object's handle_ibays() method is successful.
++Normally, this is the page called 'First' - the initial ibays page containing
++the listing of all ibays.
++
++This can be overridden to specify a new finishing page, perhaps detailing
++special instructions on using the newly installed/upgraded plugin.
++
++=cut
++
++sub handle_ibays_wherenext {'First'}
++
+ 
+ 1;
++
++__DATA__
