@@ -1,26 +1,15 @@
 Summary: e-smith server and gateway - ibays module
 %define name e-smith-ibays
 Name: %{name}
-%define version 1.1.1
-%define release 14
+%define version 1.1.3
+%define release 02
 Version: %{version}
 Release: %{release}
 License: GPL
 Vendor: Mitel Networks Corporation
 Group: Networking/Daemons
 Source: %{name}-%{version}.tar.gz
-Patch0: e-smith-ibays-1.1.1-02.mitel_patch
-Patch1: e-smith-ibays-1.1.1-03.mitel_patch
-Patch2: e-smith-ibays-1.1.1-04.mitel_patch
-Patch3: e-smith-ibays-1.1.1-06.mitel_patch
-Patch4: e-smith-ibays-1.1.1-07.mitel_patch
-Patch5: e-smith-ibays-1.1.1-08.mitel_patch
-Patch6: e-smith-ibays-1.1.1-09.mitel_patch
-Patch7: e-smith-ibays-1.1.1-10.mitel_patch
-Patch8: e-smith-ibays-1.1.1-11.mitel_patch
-Patch9: e-smith-ibays-1.1.1-12.mitel_patch
-Patch10: e-smith-ibays-1.1.1-13.mitel_patch
-Patch11: e-smith-ibays-1.1.1-14.mitel_patch
+Patch0: e-smith-ibays-1.1.3-02.mitel_patch
 Packager: e-smith developers <bugs@e-smith.com>
 BuildRoot: /var/tmp/%{name}-%{version}-%{release}-buildroot
 BuildArchitectures: noarch
@@ -37,6 +26,35 @@ AutoReqProv: no
 e-smith server and gateway software - ibays module.
 
 %changelog
+* Fri Oct 14 2005 Charlie Brady <charlieb@e-smith.com>
+- [1.1.3-02]
+- Fix missing 'use esmith::util' in ibay-modify action.
+  [SF: 1327138]
+
+* Fri Oct 14 2005 Gordon Rowell <gordonr@e-smith.com>
+- [1.1.3-01]
+- Remove L10Ns from base packages [SF: 1309520]
+
+* Fri Oct 14 2005 Gordon Rowell <gordonr@e-smith.com>
+- [1.1.2-01]
+- New dev stream before relocating L10Ns
+
+* Thu Oct  6 2005 Charlie Brady <charlieb@e-smith.com>
+- [1.1.1-18]
+- Strip out plugin stuff, for now at least. [SF: 1304496]
+
+* Fri Sep 30 2005 Gordon Rowell <gordonr@e-smith.com>
+- [1.1.1-17]
+- Added Italian L10N - Thanks Filippo Carletti [SF: 1309266]
+
+* Mon Sep 26 2005 Gordon Rowell <gordonr@e-smith.com>
+- [1.1.1-16]
+- Added German L10N - Thanks Dietmar Berteld [SF: 1293325]
+
+* Wed Sep 14 2005 Tony Clayton <apc@e-smith.com>
+- [1.1.1-15]
+- Don't version 'none' plugin [SF: 1292084]
+
 * Mon Sep  5 2005 Tony Clayton <apc@e-smith.com>
 - [1.1.1-14]
 - Add dependency on e-smith-formmagick >= 1.3.0-10
@@ -173,17 +191,6 @@ e-smith server and gateway software - ibays module.
 %prep
 %setup
 %patch0 -p1
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
-%patch6 -p1
-%patch7 -p1
-%patch8 -p1
-%patch9 -p1
-%patch10 -p1
-%patch11 -p1
 
 %pre
 %post
