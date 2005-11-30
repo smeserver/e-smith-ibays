@@ -2,7 +2,7 @@ Summary: e-smith server and gateway - ibays module
 %define name e-smith-ibays
 Name: %{name}
 %define version 1.1.3
-%define release 02
+%define release 04
 Version: %{version}
 Release: %{release}
 License: GPL
@@ -10,6 +10,7 @@ Vendor: Mitel Networks Corporation
 Group: Networking/Daemons
 Source: %{name}-%{version}.tar.gz
 Patch0: e-smith-ibays-1.1.3-02.mitel_patch
+Patch1: e-smith-ibays-1.1.3-03.mitel_patch
 Packager: e-smith developers <bugs@e-smith.com>
 BuildRoot: /var/tmp/%{name}-%{version}-%{release}-buildroot
 BuildArchitectures: noarch
@@ -26,6 +27,15 @@ AutoReqProv: no
 e-smith server and gateway software - ibays module.
 
 %changelog
+* Wed Nov 30 2005 Gordon Rowell <gordonr@gormand.com.au> 1.1.3-04
+- Bump release number only
+
+* Sun Oct 16 2005 Gordon Rowell <gordonr@e-smith.com>
+- [1.1.3-03]
+- Allow per-ibay override for PHP register_globals setting. To enable:
+  /sbin/e-smith/db accounts setprop <ibay> PHPRegisterGlobals enabled
+  Thanks John Bennett [SF: 1328236]
+
 * Fri Oct 14 2005 Charlie Brady <charlieb@e-smith.com>
 - [1.1.3-02]
 - Fix missing 'use esmith::util' in ibay-modify action.
@@ -191,6 +201,7 @@ e-smith server and gateway software - ibays module.
 %prep
 %setup
 %patch0 -p1
+%patch1 -p1
 
 %pre
 %post
