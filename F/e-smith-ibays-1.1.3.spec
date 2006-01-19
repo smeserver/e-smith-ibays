@@ -2,7 +2,7 @@ Summary: e-smith server and gateway - ibays module
 %define name e-smith-ibays
 Name: %{name}
 %define version 1.1.3
-%define release 04
+%define release 05
 Version: %{version}
 Release: %{release}
 License: GPL
@@ -27,6 +27,9 @@ AutoReqProv: no
 e-smith server and gateway software - ibays module.
 
 %changelog
+* Thu Jan 19 2006 Charlie Brady <charlieb@e-smith.com> 1.1.3-05
+- Remove bogus IbayPlugin symlink. [SME: 519]
+
 * Wed Nov 30 2005 Gordon Rowell <gordonr@gormand.com.au> 1.1.3-04
 - Bump release number only
 
@@ -213,9 +216,6 @@ mkdir -p root/etc/e-smith/skel/e-smith/files/ibays
 mkdir -p root/etc/e-smith/web/{common,functions}
 mkdir -p root/etc/e-smith/web/panels/manager/{cgi-bin,common,html}
 mkdir -p root/home/e-smith/files/ibays
-
-# symlink IbayPlugin perl lib directory to /etc/e-smith/IbayPlugin
-ln -s /$(cd root; find usr -name IbayPlugin) root/etc/e-smith/IbayPlugin
 
 LEXICONS=$(find root/etc/e-smith/web/functions \
 	-type f | grep -v CVS | grep -v pleasewait)
