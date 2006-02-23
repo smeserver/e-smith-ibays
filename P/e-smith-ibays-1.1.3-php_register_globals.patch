@@ -1,0 +1,12 @@
+diff -Nur -x '*.orig' -x '*.rej' e-smith-ibays-1.1.3/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/90e-smithAccess40ibays mezzanine_patched_e-smith-ibays-1.1.3/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/90e-smithAccess40ibays
+--- e-smith-ibays-1.1.3/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/90e-smithAccess40ibays	2006-02-23 10:50:55.000000000 -0500
++++ mezzanine_patched_e-smith-ibays-1.1.3/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/90e-smithAccess40ibays	2006-02-23 10:50:30.000000000 -0500
+@@ -130,7 +130,7 @@
+ 
+ 	if (($properties{PHPRegisterGlobals} || 'disabled') eq 'enabled')
+ 	{
+-	    $OUT .= "    php_value register_globals \"On\"\n";
++	    $OUT .= "    php_flag register_globals on\n";
+ 	}
+ 	$OUT .= "</Directory>\n";
+ 

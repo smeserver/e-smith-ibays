@@ -2,7 +2,7 @@ Summary: e-smith server and gateway - ibays module
 %define name e-smith-ibays
 Name: %{name}
 %define version 1.1.3
-%define release 05
+%define release 06
 Version: %{version}
 Release: %{release}
 License: GPL
@@ -11,6 +11,7 @@ Group: Networking/Daemons
 Source: %{name}-%{version}.tar.gz
 Patch0: e-smith-ibays-1.1.3-02.mitel_patch
 Patch1: e-smith-ibays-1.1.3-03.mitel_patch
+Patch2: e-smith-ibays-1.1.3-php_register_globals.patch
 Packager: e-smith developers <bugs@e-smith.com>
 BuildRoot: /var/tmp/%{name}-%{version}-%{release}-buildroot
 BuildArchitectures: noarch
@@ -27,6 +28,9 @@ AutoReqProv: no
 e-smith server and gateway software - ibays module.
 
 %changelog
+* Thu Feb 23 2006 Charlie Brady <charlie_brady@mitel.com> 1.1.3-06
+- Fix php register_globals directive. [SME: 820]
+
 * Thu Jan 19 2006 Charlie Brady <charlieb@e-smith.com> 1.1.3-05
 - Remove bogus IbayPlugin symlink. [SME: 519]
 
@@ -205,6 +209,7 @@ e-smith server and gateway software - ibays module.
 %setup
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
 
 %pre
 %post
