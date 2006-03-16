@@ -1,17 +1,14 @@
 Summary: e-smith server and gateway - ibays module
 %define name e-smith-ibays
 Name: %{name}
-%define version 1.1.3
-%define release 06
+%define version 1.2.0
+%define release 01
 Version: %{version}
 Release: %{release}
 License: GPL
 Vendor: Mitel Networks Corporation
 Group: Networking/Daemons
 Source: %{name}-%{version}.tar.gz
-Patch0: e-smith-ibays-1.1.3-02.mitel_patch
-Patch1: e-smith-ibays-1.1.3-03.mitel_patch
-Patch2: e-smith-ibays-1.1.3-php_register_globals.patch
 Packager: e-smith developers <bugs@e-smith.com>
 BuildRoot: /var/tmp/%{name}-%{version}-%{release}-buildroot
 BuildArchitectures: noarch
@@ -28,6 +25,9 @@ AutoReqProv: no
 e-smith server and gateway software - ibays module.
 
 %changelog
+* Wed Mar 15 2006 Charlie Brady <charlie_brady@mitel.com> 1.2.0-01
+- Roll stable stream version. [SME: 1016]
+
 * Thu Feb 23 2006 Charlie Brady <charlie_brady@mitel.com> 1.1.3-06
 - Fix php register_globals directive. [SME: 820]
 
@@ -207,9 +207,6 @@ e-smith server and gateway software - ibays module.
 
 %prep
 %setup
-%patch0 -p1
-%patch1 -p1
-%patch2 -p1
 
 %pre
 %post
