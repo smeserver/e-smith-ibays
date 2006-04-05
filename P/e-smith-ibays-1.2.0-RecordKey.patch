@@ -1,0 +1,12 @@
+diff -Nur -x '*.orig' -x '*.rej' e-smith-ibays-1.2.0/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/VirtualHosts/20IbayContent mezzanine_patched_e-smith-ibays-1.2.0/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/VirtualHosts/20IbayContent
+--- e-smith-ibays-1.2.0/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/VirtualHosts/20IbayContent	2005-08-05 00:55:43.000000000 +1000
++++ mezzanine_patched_e-smith-ibays-1.2.0/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/VirtualHosts/20IbayContent	2006-04-05 17:15:35.941311898 +1000
+@@ -40,7 +40,7 @@
+ 	    my $name = $ibay->prop("Name") || "";
+ 	    
+ 	    $OUT .= "\n";
+-	    $OUT .= "    # $ibay ibay ($name)\n";
++	    $OUT .= "    # $key ibay ($name)\n";
+ 	    $OUT .= "\n";
+ 	    
+ 	    if ($cgiBin)
