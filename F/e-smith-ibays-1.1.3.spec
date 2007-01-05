@@ -2,7 +2,7 @@ Summary: e-smith server and gateway - ibays module
 %define name e-smith-ibays
 Name: %{name}
 %define version 1.2.0
-%define release 3
+%define release 4
 Version: %{version}
 Release: %smerelease %{release}
 Packager: %{_packager}
@@ -11,6 +11,7 @@ Vendor: Mitel Networks Corporation
 Group: Networking/Daemons
 Source: %{name}-%{version}.tar.gz
 Patch0: e-smith-ibays-1.2.0-RecordKey.patch
+Patch1: e-smith-ibays-1.2.0-dynamicindex.patch
 BuildRoot: /var/tmp/%{name}-%{version}-%{release}-buildroot
 BuildArchitectures: noarch
 Requires: e-smith-base >= 4.13.15-76
@@ -26,6 +27,9 @@ AutoReqProv: no
 e-smith server and gateway software - ibays module.
 
 %changelog
+* Fri Dec 05 2007 Shad L. Lords <slords@mail.com> 1.2.0-4
+- Make non-dynamic indexes not look for dynamic content. [SME: 1908]
+
 * Thu Dec 07 2006 Shad L. Lords <slords@mail.com>
 - Update to new release naming.  No functional changes.
 - Make Packager generic
@@ -216,6 +220,7 @@ e-smith server and gateway software - ibays module.
 %prep
 %setup
 %patch0 -p1
+%patch1 -p1
 
 %pre
 %post
