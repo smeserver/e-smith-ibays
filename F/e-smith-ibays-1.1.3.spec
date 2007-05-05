@@ -4,10 +4,8 @@ Name: %{name}
 %define version 1.2.0
 %define release 4
 Version: %{version}
-Release: %smerelease %{release}
-Packager: %{_packager}
+Release: %{release}%{?dist}
 License: GPL
-Vendor: Mitel Networks Corporation
 Group: Networking/Daemons
 Source: %{name}-%{version}.tar.gz
 Patch0: e-smith-ibays-1.2.0-RecordKey.patch
@@ -27,7 +25,10 @@ AutoReqProv: no
 e-smith server and gateway software - ibays module.
 
 %changelog
-* Fri Dec 05 2007 Shad L. Lords <slords@mail.com> 1.2.0-4
+* Sun Apr 29 2007 Shad L. Lords <slords@mail.com>
+- Clean up spec so package can be built by koji/plague
+
+* Fri Dec 08 2006 Shad L. Lords <slords@mail.com> 1.2.0-4
 - Make non-dynamic indexes not look for dynamic content. [SME: 1908]
 
 * Thu Dec 07 2006 Shad L. Lords <slords@mail.com>
