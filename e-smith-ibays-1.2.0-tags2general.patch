@@ -1,0 +1,87 @@
+diff -Nur -x '*.orig' -x '*.rej' e-smith-ibays-1.2.0/root/etc/e-smith/locale/en-us/etc/e-smith/web/functions/ibays mezzanine_patched_e-smith-ibays-1.2.0/root/etc/e-smith/locale/en-us/etc/e-smith/web/functions/ibays
+--- e-smith-ibays-1.2.0/root/etc/e-smith/locale/en-us/etc/e-smith/web/functions/ibays	2005-10-07 07:52:28.000000000 +1000
++++ mezzanine_patched_e-smith-ibays-1.2.0/root/etc/e-smith/locale/en-us/etc/e-smith/web/functions/ibays	2008-02-13 22:22:42.000000000 +1100
+@@ -68,12 +68,6 @@
+         </trans>
+     </entry>
+     <entry>
+-        <base>GROUP</base>
+-        <trans>
+-            Group
+-        </trans>
+-    </entry>
+-    <entry>
+         <base>USER_ACCESS</base>
+         <trans>
+             User access via file sharing or user ftp
+@@ -102,14 +96,6 @@
+         </trans>
+     </entry>
+     <entry>
+-        <base>ADD</base>
+-        <trans>Add</trans>
+-    </entry>
+-    <entry>
+-        <base>SAVE</base>
+-        <trans>Save</trans>
+-    </entry>
+-    <entry>
+         <base>REMOVE_TITLE</base>
+         <trans>
+             Remove information bay
+@@ -133,18 +119,10 @@
+         </trans>
+     </entry>
+     <entry>
+-        <base>REMOVE</base>
+-        <trans>Remove</trans>
+-    </entry>
+-    <entry>
+         <base>RESET_PASSWORD</base>
+         <trans>Reset password</trans>
+     </entry>
+     <entry>
+-        <base>MODIFY</base>
+-        <trans>Modify</trans>
+-    </entry>
+-    <entry>
+         <base>ERROR_WHILE_CREATING_IBAY</base>
+         <trans>
+             An error occurred while creating the i-bay.
+@@ -249,10 +227,6 @@
+         </trans>
+     </entry>
+     <entry>
+-        <base>ACTION</base>
+-        <trans>Action</trans>
+-    </entry>
+-    <entry>
+         <base>ERROR_WHILE_RESETTING_PASSWORD</base>
+         <trans>
+             Error while resetting password.
+@@ -270,10 +244,6 @@
+         </trans>
+     </entry>
+     <entry>
+-        <base>Collaboration</base>
+-        <trans>Collaboration</trans>
+-    </entry>
+-    <entry>
+         <base>Information bays</base>
+         <trans>Information bays</trans>
+     </entry>
+@@ -314,14 +284,6 @@
+         <trans>Entire Internet (password required outside local network)</trans>
+     </entry>
+     <entry>
+-        <base>DISABLED</base>
+-        <trans>disabled</trans>
+-    </entry>
+-    <entry>
+-        <base>ENABLED</base>
+-        <trans>enabled</trans>
+-    </entry>
+-    <entry>
+         <base>PASSWORD_VERIFY_ERROR</base>
+         <trans>The passwords you entered did not match.</trans>
+     </entry>
