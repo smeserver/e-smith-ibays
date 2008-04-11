@@ -1,0 +1,12 @@
+diff -Nur -x '*.orig' -x '*.rej' e-smith-ibays-1.2.0/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/90e-smithAccess40ibays mezzanine_patched_e-smith-ibays-1.2.0/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/90e-smithAccess40ibays
+--- e-smith-ibays-1.2.0/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/90e-smithAccess40ibays	2008-04-07 19:17:33.000000000 -0400
++++ mezzanine_patched_e-smith-ibays-1.2.0/root/etc/e-smith/templates/etc/httpd/conf/httpd.conf/90e-smithAccess40ibays	2008-04-07 19:17:14.000000000 -0400
+@@ -109,7 +109,7 @@
+ 	}
+ 	else
+ 	{
+-	    $OUT .= "    DirectoryIndex index.htm index.html\n";
++	    $OUT .= "    DirectoryIndex index.shtml index.htm index.html\n";
+ 	    $OUT .= "    Options +IncludesNOEXEC\n";
+ 	    $OUT .= "    <FilesMatch \"\\.(php|php3|phtml)\$\">\n";
+ 	    $OUT .= "        order deny,allow\n";
