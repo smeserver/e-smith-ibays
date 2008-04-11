@@ -2,7 +2,7 @@ Summary: e-smith server and gateway - ibays module
 %define name e-smith-ibays
 Name: %{name}
 %define version 1.2.0
-%define release 6
+%define release 7
 Version: %{version}
 Release: %{release}%{?dist}
 License: GPL
@@ -12,6 +12,7 @@ Patch0: e-smith-ibays-1.2.0-RecordKey.patch
 Patch1: e-smith-ibays-1.2.0-dynamicindex.patch
 Patch2: e-smith-ibays-1.2.0-warning.patch
 Patch3: e-smith-ibays-1.2.0-tags2general.patch
+Patch4: e-smith-ibays-1.2.0-shtml.patch
 BuildRoot: /var/tmp/%{name}-%{version}-%{release}-buildroot
 BuildArchitectures: noarch
 Requires: e-smith-base >= 4.13.15-76
@@ -27,6 +28,9 @@ AutoReqProv: no
 e-smith server and gateway software - ibays module.
 
 %changelog
+* Mon Apr  7 2008 Charlie Brady <charlie_brady@mitel.com> 1.2.0-7
+- Include index.shtml in DirectoryIndex list.[SME: 4180]
+
 * Wed Feb 13 2008 Stephen Noble <support@dungog.net> 1.2.0-6
 - Remove <base> tags now in general [SME: 3924]
 
@@ -232,6 +236,7 @@ e-smith server and gateway software - ibays module.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%patch4 -p1
 
 %pre
 %post
