@@ -31,7 +31,7 @@ e-smith server and gateway software - ibays module.
 
 %changelog
 * Sun Apr 27 2008 Jonathan Martens <smeserver-contribs@snetram.nl> 1.2.0-9
-- Add common <base> tags to e-smith-formmagick's general
+- Add common <base> tags to e-smith-formmagick's general [SME: 4283]
 
 * Fri Apr 17 2008 Jonathan Martens <smeserver-contribs@snetram.nl> 1.2.0-8
 - Move maxIbayNameLength from ibays.pm to config DB [SME: 424]
