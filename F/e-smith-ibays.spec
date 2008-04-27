@@ -2,7 +2,7 @@ Summary: e-smith server and gateway - ibays module
 %define name e-smith-ibays
 Name: %{name}
 %define version 1.2.0
-%define release 8
+%define release 9
 Version: %{version}
 Release: %{release}%{?dist}
 License: GPL
@@ -14,6 +14,7 @@ Patch2: e-smith-ibays-1.2.0-warning.patch
 Patch3: e-smith-ibays-1.2.0-tags2general.patch
 Patch4: e-smith-ibays-1.2.0-shtml.patch
 Patch5: e-smith-ibays-1.2.0-maxIbayNameLength.patch
+Patch6: e-smith-ibays-1.2.0-add2general.patch
 BuildRoot: /var/tmp/%{name}-%{version}-%{release}-buildroot
 BuildArchitectures: noarch
 Requires: e-smith-base >= 4.13.15-76
@@ -29,6 +30,9 @@ AutoReqProv: no
 e-smith server and gateway software - ibays module.
 
 %changelog
+* Sun Apr 27 2008 Jonathan Martens <smeserver-contribs@snetram.nl> 1.2.0-9
+- Add common <base> tags to e-smith-formmagick's general
+
 * Fri Apr 17 2008 Jonathan Martens <smeserver-contribs@snetram.nl> 1.2.0-8
 - Move maxIbayNameLength from ibays.pm to config DB [SME: 424]
 
@@ -242,6 +246,7 @@ e-smith server and gateway software - ibays module.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
+%patch6 -p1
 
 %pre
 %post
