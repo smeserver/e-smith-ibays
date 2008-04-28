@@ -19,7 +19,7 @@ BuildRoot: /var/tmp/%{name}-%{version}-%{release}-buildroot
 BuildArchitectures: noarch
 Requires: e-smith-base >= 4.13.15-76
 Requires: perl(CGI::FormMagick)
-Requires: e-smith-formmagick >= 1.4.0-9
+Requires: e-smith-formmagick >= 1.4.0-12
 Conflicts: e-smith-apache < 0.1.1
 BuildRequires: perl, perl(Test::Inline)
 BuildRequires: e-smith-devtools >= 1.11.0-03
