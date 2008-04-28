@@ -19,7 +19,7 @@ BuildRoot: /var/tmp/%{name}-%{version}-%{release}-buildroot
 BuildArchitectures: noarch
 Requires: e-smith-base >= 4.13.15-76
 Requires: perl(CGI::FormMagick)
-Requires: e-smith-formmagick >= 1.4.0-9
+Requires: e-smith-formmagick >= 1.4.0-12
 Conflicts: e-smith-apache < 0.1.1
 BuildRequires: perl, perl(Test::Inline)
 BuildRequires: e-smith-devtools >= 1.11.0-03
@@ -31,7 +31,7 @@ e-smith server and gateway software - ibays module.
 
 %changelog
 * Sun Apr 27 2008 Jonathan Martens <smeserver-contribs@snetram.nl> 1.2.0-9
-- Add common <base> tags to e-smith-formmagick's general
+- Add common <base> tags to e-smith-formmagick's general [SME: 4283]
 
 * Fri Apr 17 2008 Jonathan Martens <smeserver-contribs@snetram.nl> 1.2.0-8
 - Move maxIbayNameLength from ibays.pm to config DB [SME: 424]
