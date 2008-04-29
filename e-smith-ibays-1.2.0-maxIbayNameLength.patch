@@ -1,0 +1,48 @@
+diff -Nur -x '*.orig' -x '*.rej' e-smith-ibays-1.2.0/root/etc/e-smith/db/configuration/defaults/maxIbayNameLength.maxIbaysNameLength.patch mezzanine_patched_e-smith-ibays-1.2.0/root/etc/e-smith/db/configuration/defaults/maxIbayNameLength.maxIbaysNameLength.patch
+--- e-smith-ibays-1.2.0/root/etc/e-smith/db/configuration/defaults/maxIbayNameLength.maxIbaysNameLength.patch   1970-01-01 01:00:00.000000000 +0100
++++ mezzanine_patched_e-smith-ibays-1.2.0/root/etc/e-smith/db/configuration/defaults/maxIbayNameLength  2008-04-17 23:37:17.000000000 +0200
+@@ -0,0 +1 @@
++12
+diff -Nur -x '*.orig' -x '*.rej' e-smith-ibays-1.2.0/root/usr/lib/perl5/site_perl/esmith/FormMagick/Panel/ibays.pm mezzanine_patched_e-smith-ibays-1.2.0/root/usr/lib/perl5/site_perl/esmith/FormMagick/Panel/ibays.pm
+--- e-smith-ibays-1.2.0/root/usr/lib/perl5/site_perl/esmith/FormMagick/Panel/ibays.pm	2008-04-17 23:50:09.000000000 +0200
++++ mezzanine_patched_e-smith-ibays-1.2.0/root/usr/lib/perl5/site_perl/esmith/FormMagick/Panel/ibays.pm	2008-04-17 23:49:35.000000000 +0200
+@@ -89,7 +89,6 @@
+     my $class = ref($proto) || $proto;
+     my $self = esmith::FormMagick::new($class);
+     $self->{calling_package} = (caller)[0];
+-    $self->{defaultMaxLength} = 12;
+ 
+     return $self;
+ }
+@@ -220,7 +219,6 @@
+     my $in = $self->{cgi}->param('name') || '';
+     my $action = $self->{cgi}->param('action') || '';
+     my $maxLength = $configdb->get('maxIbayNameLength');
+-    $maxLength = $maxLength ? $maxLength->value : $self->{defaultMaxLength};
+     print qq(<tr><td colspan="2">) . $self->localise('NAME_FIELD_DESC',
+         {maxLength => $maxLength}) . qq(</td></tr>);
+     print qq(<tr><td class="sme-noborders-label">) . 
+@@ -373,7 +371,7 @@
+ 
+ Checks the length of a given i-bay name against the maximum set in the
+ maxIbayNameLength record of the configuration database.  Defaults to a
+-maximum length of $self->{defaultMaxLength} if nothing is set in the config db.
++maximum length of the maxIbayNameLength set in the config db.
+ 
+ =begin testing
+ 
+@@ -401,12 +399,7 @@
+ sub max_ibay_name_length {
+     my ($self, $data) = @_;
+     $configdb->reload();
+-    my $max;
+-    if (my $max_record = $configdb->get('maxIbayNameLength')) {
+-        $max = $max_record->value();
+-    } else {
+-        $max = $self->{defaultMaxLength};
+-    }
++    my $max = $configdb->get('maxIbayNameLength')) {
+ 
+     if (length($data) <= $max) {
+         return "OK";
+
