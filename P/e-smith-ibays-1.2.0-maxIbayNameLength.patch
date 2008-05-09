@@ -1,6 +1,6 @@
-diff -Nur -x '*.orig' -x '*.rej' e-smith-ibays-1.2.0/root/etc/e-smith/db/configuration/defaults/maxIbayNameLength.maxIbaysNameLength.patch mezzanine_patched_e-smith-ibays-1.2.0/root/etc/e-smith/db/configuration/defaults/maxIbayNameLength.maxIbaysNameLength.patch
---- e-smith-ibays-1.2.0/root/etc/e-smith/db/configuration/defaults/maxIbayNameLength.maxIbaysNameLength.patch   1970-01-01 01:00:00.000000000 +0100
-+++ mezzanine_patched_e-smith-ibays-1.2.0/root/etc/e-smith/db/configuration/defaults/maxIbayNameLength  2008-04-17 23:37:17.000000000 +0200
+diff -Nur -x '*.orig' -x '*.rej' e-smith-ibays-1.2.0/root/etc/e-smith/db/configuration/defaults/maxIbayNameLength/type.maxIbaysNameLength.patch mezzanine_patched_e-smith-ibays-1.2.0/root/etc/e-smith/db/configuration/defaults/maxIbayNameLength.maxIbaysNameLength.patch
+--- e-smith-ibays-1.2.0/root/etc/e-smith/db/configuration/defaults/maxIbayNameLength.maxIbaysNameLength/type.patch   1970-01-01 01:00:00.000000000 +0100
++++ mezzanine_patched_e-smith-ibays-1.2.0/root/etc/e-smith/db/configuration/defaults/maxIbayNameLength/type  2008-04-17 23:37:17.000000000 +0200
 @@ -0,0 +1 @@
 +12
 diff -Nur -x '*.orig' -x '*.rej' e-smith-ibays-1.2.0/root/usr/lib/perl5/site_perl/esmith/FormMagick/Panel/ibays.pm mezzanine_patched_e-smith-ibays-1.2.0/root/usr/lib/perl5/site_perl/esmith/FormMagick/Panel/ibays.pm

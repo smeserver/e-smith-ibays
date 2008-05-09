@@ -102,3 +102,8 @@ Mon Apr  7 19:31:52 2008                      Charlie Brady (charlieb)
 
 See changelog
 ----------------------------------------------------------------------
+Fri May  9 17:35:11 2008                   Jonathan Martens (jonathan)
+
+* May 9 2008 Jonathan Martens <smeserver-contribs@snetram.nl> 1.2.0-10
+- Fixed faulty patch for maxIbayNameLength [SME: 424]
+----------------------------------------------------------------------

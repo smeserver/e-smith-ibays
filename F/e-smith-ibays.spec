@@ -2,7 +2,7 @@ Summary: e-smith server and gateway - ibays module
 %define name e-smith-ibays
 Name: %{name}
 %define version 1.2.0
-%define release 9
+%define release 10
 Version: %{version}
 Release: %{release}%{?dist}
 License: GPL
@@ -30,6 +30,9 @@ AutoReqProv: no
 e-smith server and gateway software - ibays module.
 
 %changelog
+* Fri May 9 2008 Jonathan Martens <smeserver-contribs@snetram.nl> 1.2.0-10
+- Fixed faulty patch for maxIbayNameLength [SME: 424]
+
 * Sun Apr 27 2008 Jonathan Martens <smeserver-contribs@snetram.nl> 1.2.0-9
 - Add common <base> tags to e-smith-formmagick's general [SME: 4283]
 
