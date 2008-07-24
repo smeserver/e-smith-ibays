@@ -41,7 +41,7 @@ diff -Nur -x '*.orig' -x '*.rej' e-smith-ibays-1.2.0/root/usr/lib/perl5/site_per
 -    } else {
 -        $max = $self->{defaultMaxLength};
 -    }
-+    my $max = $configdb->get('maxIbayNameLength')) {
++    my $max = $configdb->get('maxIbayNameLength');
  
      if (length($data) <= $max) {
          return "OK";
