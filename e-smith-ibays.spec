@@ -2,7 +2,7 @@ Summary: e-smith server and gateway - ibays module
 %define name e-smith-ibays
 Name: %{name}
 %define version 1.2.0
-%define release 10
+%define release 11
 Version: %{version}
 Release: %{release}%{?dist}
 License: GPL
@@ -30,6 +30,9 @@ AutoReqProv: no
 e-smith server and gateway software - ibays module.
 
 %changelog
+* Thu Jul 24 2008 Shad L. Lords <slords@mail.com> 1.2.0-11
+- Really fix faulty patch for maxIbayNameLength [SME: 4457]
+
 * Fri May 9 2008 Jonathan Martens <smeserver-contribs@snetram.nl> 1.2.0-10
 - Fixed faulty patch for maxIbayNameLength [SME: 424]
 
