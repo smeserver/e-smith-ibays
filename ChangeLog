@@ -107,3 +107,13 @@ Fri May  9 17:35:11 2008                   Jonathan Martens (jonathan)
 * May 9 2008 Jonathan Martens <smeserver-contribs@snetram.nl> 1.2.0-10
 - Fixed faulty patch for maxIbayNameLength [SME: 424]
 ----------------------------------------------------------------------
+Sun Jul 27 23:00:41 2008                   Jonathan Martens (jonathan)
+
+* Sun Jul 27 2008 Jonathan Martens <smeserver-contribs@snetram.nl> 1.2.0-12
+- Fix password verify entry text box description [SME: 4460]
+----------------------------------------------------------------------
+Sun Jul 27 23:01:21 2008                   Jonathan Martens (jonathan)
+
+* Sun Jul 27 2008 Jonathan Martens <smeserver-contribs@snetram.nl> 1.2.0-12
+- Fix password verify entry text box description [SME: 4460]
+----------------------------------------------------------------------
