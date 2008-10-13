@@ -1,0 +1,20 @@
+--- e-smith-ibays-2.0.0/root/usr/lib/perl5/site_perl/esmith/FormMagick/Panel/ibays.pm.maxLength	2008-10-07 11:35:52.000000000 -0600
++++ e-smith-ibays-2.0.0/root/usr/lib/perl5/site_perl/esmith/FormMagick/Panel/ibays.pm	2008-10-13 13:58:46.000000000 -0600
+@@ -218,7 +218,7 @@
+     my $self = shift;
+     my $in = $self->{cgi}->param('name') || '';
+     my $action = $self->{cgi}->param('action') || '';
+-    my $maxLength = $configdb->get('maxIbayNameLength');
++    my $maxLength = $configdb->get('maxIbayNameLength')->value;
+     print qq(<tr><td colspan="2">) . $self->localise('NAME_FIELD_DESC',
+         {maxLength => $maxLength}) . qq(</td></tr>);
+     print qq(<tr><td class="sme-noborders-label">) . 
+@@ -399,7 +399,7 @@
+ sub max_ibay_name_length {
+     my ($self, $data) = @_;
+     $configdb->reload();
+-    my $max = $configdb->get('maxIbayNameLength');
++    my $max = $configdb->get('maxIbayNameLength')->value;
+ 
+     if (length($data) <= $max) {
+         return "OK";

@@ -1,15 +1,16 @@
-# $Id: e-smith-ibays.spec,v 1.9 2008/10/07 18:29:00 slords Exp $
+# $Id: e-smith-ibays.spec,v 1.10 2008/10/13 20:02:28 slords Exp $
 
 Summary: e-smith server and gateway - ibays module
 %define name e-smith-ibays
 Name: %{name}
 %define version 2.0.0
-%define release 1
+%define release 2
 Version: %{version}
 Release: %{release}%{?dist}
 License: GPL
 Group: Networking/Daemons
 Source: %{name}-%{version}.tar.gz
+Patch1: e-smith-ibays-2.0.0-maxLength.patch
 BuildRoot: /var/tmp/%{name}-%{version}-%{release}-buildroot
 BuildArchitectures: noarch
 Requires: e-smith-base >= 4.13.15-76
@@ -25,6 +26,9 @@ AutoReqProv: no
 e-smith server and gateway software - ibays module.
 
 %changelog
+* Mon Oct 13 2008 Shad L. Lords <slords@mail.com> 2.0.0-2.sme
+- Fix maxIbayNameLength logic [SME: 4457]
+
 * Tue Oct 7 2008 Shad L. Lords <slords@mail.com> 2.0.0-1.sme
 - Roll new stream to separate sme7/sme8 trees [SME: 4633]
 
@@ -247,6 +251,7 @@ e-smith server and gateway software - ibays module.
 
 %prep
 %setup
+%patch1 -p1
 
 %pre
 %post
