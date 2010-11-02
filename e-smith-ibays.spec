@@ -1,10 +1,10 @@
-# $Id: e-smith-ibays.spec,v 1.11 2010/11/02 17:07:31 slords Exp $
+# $Id: e-smith-ibays.spec,v 1.12 2010/11/02 19:49:11 slords Exp $
 
 Summary: e-smith server and gateway - ibays module
 %define name e-smith-ibays
 Name: %{name}
 %define version 2.2.0
-%define release 3
+%define release 4
 Version: %{version}
 Release: %{release}%{?dist}
 License: GPL
@@ -12,6 +12,7 @@ Group: Networking/Daemons
 Source: %{name}-%{version}.tar.gz
 Patch1: e-smith-ibays-2.2.0-maxLength.patch
 Patch2: e-smith-ibays-2.2.0-enable-cpu.patch
+Patch3: e-smith-ibays-2.2.0-better-ldap.patch
 BuildRoot: /var/tmp/%{name}-%{version}-%{release}-buildroot
 BuildArchitectures: noarch
 Requires: e-smith-base >= 4.13.15-76
@@ -27,6 +28,9 @@ AutoReqProv: no
 e-smith server and gateway software - ibays module.
 
 %changelog
+* Tue Nov 2 2010 Shad L. Lords <slords@mail.com> 2.2.0-4.sme
+- Always use cpu, do unix if ldap{Auth} is disabled [SME: 6326]
+
 * Mon Nov 1 2010 Shad L. Lords <slords@mail.com> 2.2.0-3.sme
 - Switch to cpu commands if ldap is master [SME: 6326]
 
@@ -257,6 +261,7 @@ e-smith server and gateway software - ibays module.
 %setup
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
 
 %pre
 %post
