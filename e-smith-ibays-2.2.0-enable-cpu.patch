@@ -1,0 +1,162 @@
+diff -up e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-delete.enable-cpu e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-delete
+--- e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-delete.enable-cpu	2005-07-28 12:42:07.000000000 -0600
++++ e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-delete	2010-11-01 10:24:44.000000000 -0600
+@@ -31,5 +31,13 @@ then
+     exit 1
+ fi
+ 
++ldapauth=$(/sbin/e-smith/config getprop ldap Authentication || echo disabled)
++
+ /bin/rm -rf /home/e-smith/files/ibays/$ibay
+-exec /usr/sbin/userdel "$ibay"
++if [ "$ldapauth" == "enabled" ]
++then
++    /usr/sbin/cpu userdel "$ibay"
++    /usr/sbin/cpu -C/etc/cpu-system.conf groupdel "$ibay"
++else
++    exec /usr/sbin/userdel "$ibay"
++fi
+diff -up e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-modify.enable-cpu e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-modify
+--- e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-modify.enable-cpu	2006-03-15 19:58:10.000000000 -0700
++++ e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-modify	2010-11-01 10:22:27.000000000 -0600
+@@ -26,7 +26,12 @@ use File::Find;
+ use esmith::util;
+ use esmith::templates;
+ use esmith::AccountsDB;
++use esmith::ConfigDB;
+ 
++my $conf = esmith::ConfigDB->open_ro
++    or die "Could not open Config DB";
++
++my $ldapauth = $conf->get('ldap')->prop('Authentication') || 'disabled';
+ 
+ $ENV{'PATH'} = "/bin";
+ 
+@@ -50,31 +55,61 @@ if ($event eq 'ibay-create')
+ 
+     # Create the ibay's unique group first
+ 
+-    system(
+-        "/usr/sbin/groupadd",
+-        "-g",
+-	$ibay->prop("Gid"),
+-        $ibayName
+-    ) == 0 or die "Failed to create group $ibayName.\n";
+-
+-    system(
+-        "/usr/sbin/useradd",
+-        "-u",
+-	$ibay->prop("Uid"),
+-        "-g",
+-	$ibay->prop("Gid"),
+-        "-c",
+-	$ibay->prop("Name"),
+-        "-d",
+-        "/home/e-smith/files/ibays/$ibayName/files",
+-        "-G",
+-        "shared,"
+-	. $ibay->prop("Group"),
+-        "-M",
+-        "-s",
+-        "/bin/false",
+-        "$ibayName"
+-    ) == 0 or die "Failed to create account $ibayName.\n";
++    if ($ldapauth eq 'enabled')
++    {
++        system(
++            "/usr/sbin/cpu", "-C/etc/cpu-system.conf", "groupadd",
++            "-g",
++            $ibay->prop("Gid"),
++            $ibayName
++        ) == 0 or die "Failed to create group $ibayName.\n";
++
++        system(
++            "/usr/sbin/cpu", "useradd",
++            "-u",
++            $ibay->prop("Uid"),
++            "-g",
++            $ibay->prop("Gid"),
++            "-c",
++            $ibay->prop("Name"),
++            "-d",
++            "/home/e-smith/files/ibays/$ibayName/files",
++            "-G",
++            "shared,"
++            . $ibay->prop("Group"),
++            "-s",
++            "/bin/false",
++            "$ibayName"
++        ) == 0 or die "Failed to create account $ibayName.\n";
++    }
++    else
++    {
++        system(
++            "/usr/sbin/groupadd",
++            "-g",
++            $ibay->prop("Gid"),
++            $ibayName
++        ) == 0 or die "Failed to create group $ibayName.\n";
++
++        system(
++            "/usr/sbin/useradd",
++            "-u",
++            $ibay->prop("Uid"),
++            "-g",
++            $ibay->prop("Gid"),
++            "-c",
++            $ibay->prop("Name"),
++            "-d",
++            "/home/e-smith/files/ibays/$ibayName/files",
++            "-G",
++            "shared,"
++            . $ibay->prop("Group"),
++            "-M",
++            "-s",
++            "/bin/false",
++            "$ibayName"
++        ) == 0 or die "Failed to create account $ibayName.\n";
++    }
+ 
+     #------------------------------------------------------------
+     # Create the ibay files and set the password.
+@@ -90,8 +125,16 @@ if ($event eq 'ibay-create')
+ 	MORE_DATA=>{IBAY_NAME=>$ibayName},
+ 		} );
+ 
+-    system("/usr/bin/passwd", "-l", $ibayName) == 0
+-	or die "Error running /usr/bin/passwd command to lock account $ibayName";
++    if ($ldapauth eq 'enabled')
++    {
++        system("/usr/sbin/cpu", "usermod", "-L", $ibayName) == 0
++            or die "Error running /usr/sbin/cpu usermod -L command to lock account $ibayName";
++    }
++    else
++    {
++        system("/usr/bin/passwd", "-l", $ibayName) == 0
++            or die "Error running /usr/bin/passwd command to lock account $ibayName";
++    }
+ }
+ elsif ($event eq 'ibay-modify')
+ {
+@@ -99,9 +142,18 @@ elsif ($event eq 'ibay-modify')
+     # Modify ibay description in /etc/passwd using "usermod"
+     #------------------------------------------------------------
+ 
+-    system("/usr/sbin/usermod", "-c", $ibay->prop("Name"),
+-    "-G", "shared," . $ibay->prop("Group"), "$ibayName") == 0
+-        or die "Failed to modify account $ibayName.\n";
++    if ($ldapauth eq 'enabled')
++    {
++        system("/usr/sbin/cpu", "usermod", "-c", $ibay->prop("Name"),
++        "-G", "shared," . $ibay->prop("Group"), "$ibayName") == 0
++            or die "Failed to modify account $ibayName.\n";
++    }
++    else
++    {
++        system("/usr/sbin/usermod", "-c", $ibay->prop("Name"),
++        "-G", "shared," . $ibay->prop("Group"), "$ibayName") == 0
++            or die "Failed to modify account $ibayName.\n";
++    }
+ 
+ }
+ 

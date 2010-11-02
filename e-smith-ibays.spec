@@ -1,16 +1,17 @@
-# $Id: e-smith-ibays.spec,v 1.10 2008/10/13 20:02:28 slords Exp $
+# $Id: e-smith-ibays.spec,v 1.11 2010/11/02 17:07:31 slords Exp $
 
 Summary: e-smith server and gateway - ibays module
 %define name e-smith-ibays
 Name: %{name}
 %define version 2.2.0
-%define release 2
+%define release 3
 Version: %{version}
 Release: %{release}%{?dist}
 License: GPL
 Group: Networking/Daemons
 Source: %{name}-%{version}.tar.gz
 Patch1: e-smith-ibays-2.2.0-maxLength.patch
+Patch2: e-smith-ibays-2.2.0-enable-cpu.patch
 BuildRoot: /var/tmp/%{name}-%{version}-%{release}-buildroot
 BuildArchitectures: noarch
 Requires: e-smith-base >= 4.13.15-76
@@ -26,6 +27,9 @@ AutoReqProv: no
 e-smith server and gateway software - ibays module.
 
 %changelog
+* Mon Nov 1 2010 Shad L. Lords <slords@mail.com> 2.2.0-3.sme
+- Switch to cpu commands if ldap is master [SME: 6326]
+
 * Mon Oct 13 2008 Shad L. Lords <slords@mail.com> 2.2.0-2.sme
 - Fix maxIbayNameLength logic [SME: 4457]
 
@@ -252,6 +256,7 @@ e-smith server and gateway software - ibays module.
 %prep
 %setup
 %patch1 -p1
+%patch2 -p1
 
 %pre
 %post
