@@ -1,10 +1,10 @@
-# $Id: e-smith-ibays.spec,v 1.13 2010/11/03 14:00:52 slords Exp $
+# $Id: e-smith-ibays.spec,v 1.14 2010/11/03 18:55:13 slords Exp $
 
 Summary: e-smith server and gateway - ibays module
 %define name e-smith-ibays
 Name: %{name}
 %define version 2.2.0
-%define release 5
+%define release 6
 Version: %{version}
 Release: %{release}%{?dist}
 License: GPL
@@ -28,6 +28,9 @@ AutoReqProv: no
 e-smith server and gateway software - ibays module.
 
 %changelog
+* Wed Nov 3 2010 Shad L. Lords <slords@mail.com> 2.2.0-6.sme
+- Fix cpu critical patch missing ' [SME: 6330]
+
 * Wed Nov 3 2010 Shad L. Lords <slords@mail.com> 2.2.0-5.sme
 - Make cpu calls critical only with ldap{Auth} is enabled [SME: 6330]
 
