@@ -9,7 +9,7 @@ diff -up e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-delete.better-
  if [ -z "$ibay" ]
  then
      echo ibayName argument missing
-@@ -32,12 +33,15 @@ then
+@@ -32,12 +33,17 @@
  fi
  
  ldapauth=$(/sbin/e-smith/config getprop ldap Authentication || echo disabled)
@@ -19,15 +19,14 @@ diff -up e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-delete.better-
 -if [ "$ldapauth" == "enabled" ]
 +if [ "$ldapauth" != "enabled" ]
  then
--    /usr/sbin/cpu userdel "$ibay"
--    /usr/sbin/cpu -C/etc/cpu-system.conf groupdel "$ibay"
--else
--    exec /usr/sbin/userdel "$ibay"
 +    /usr/sbin/userdel "$ibay" || x=1
+     /usr/sbin/cpu userdel "$ibay"
+     /usr/sbin/cpu -C/etc/cpu-system.conf groupdel "$ibay"
+ else
+-    exec /usr/sbin/userdel "$ibay"
++    /usr/sbin/cpu userdel "$ibay" || x=1
++    /usr/sbin/cpu -C/etc/cpu-system.conf groupdel "$ibay" || x=1
  fi
-+
-+/usr/sbin/cpu userdel "$ibay" || x=1
-+/usr/sbin/cpu -C/etc/cpu-system.conf groupdel "$ibay" || x=1
 +
 +exit $x
 diff -up e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-modify.better-ldap e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-modify
@@ -98,7 +97,7 @@ diff -up e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-modify.better-
 +        "-g",
 +        $ibay->prop("Gid"),
 +        $ibayName
-+    ) == 0 or ( $x = 255, warn "Failed to create (ldap) group $ibayName.\n" );
++    ) == 0 or ( $x = $ldapauth ne 'enabled ? $x : 255, warn "Failed to create (ldap) group $ibayName.\n" );
 +
 +    system(
 +        "/usr/sbin/cpu", "useradd",
@@ -116,7 +115,7 @@ diff -up e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-modify.better-
 +        "-s",
 +        "/bin/false",
 +        "$ibayName"
-+    ) == 0 or ( $x = 255, warn "Failed to create (ldap) account $ibayName.\n" );
++    ) == 0 or ( $x = $ldapauth ne 'enabled ? $x : 255, warn "Failed to create (ldap) account $ibayName.\n" );
 +
      #------------------------------------------------------------
      # Create the ibay files and set the password.
@@ -147,7 +146,7 @@ diff -up e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-modify.better-
      }
 +
 +    system("/usr/sbin/cpu", "usermod", "-L", $ibayName) == 0
-+        or ( $x = 255, warn "Error locking (ldap) account $ibayName" );
++        or ( $x = $ldapauth ne 'enabled ? $x : 255, warn "Error locking (ldap) account $ibayName" );
  }
  elsif ($event eq 'ibay-modify')
  {
@@ -172,7 +171,7 @@ diff -up e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-modify.better-
  
 +    system("/usr/sbin/cpu", "usermod", "-c", $ibay->prop("Name"),
 +    "-G", "shared," . $ibay->prop("Group"), "$ibayName") == 0
-+        or ( $x = 255, warn "Failed to modify (ldap) account $ibayName.\n" );
++        or ( $x = $ldapauth ne 'enabled ? $x : 255, warn "Failed to modify (ldap) account $ibayName.\n" );
  }
  
  #------------------------------------------------------------
