@@ -11,7 +11,7 @@ diff -up e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-delete.enable-
 -exec /usr/sbin/userdel "$ibay"
 +if [ "$ldapauth" == "enabled" ]
 +then
-+    /usr/sbin/cpu userdel "$ibay"
++    /usr/sbin/cpu -C/etc/cpu-system.conf userdel "$ibay"
 +    /usr/sbin/cpu -C/etc/cpu-system.conf groupdel "$ibay"
 +else
 +    exec /usr/sbin/userdel "$ibay"

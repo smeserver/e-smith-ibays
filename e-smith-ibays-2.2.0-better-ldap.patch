@@ -20,7 +20,7 @@ diff -Nur -x '*.orig' -x '*.rej' e-smith-ibays-2.2.0/root/etc/e-smith/events/act
 +if [ "$ldapauth" != "enabled" ]
  then
 +    /usr/sbin/userdel "$ibay" || x=1
-     /usr/sbin/cpu userdel "$ibay"
+     /usr/sbin/cpu -C/etc/cpu-system.conf userdel "$ibay"
      /usr/sbin/cpu -C/etc/cpu-system.conf groupdel "$ibay"
  else
 -    exec /usr/sbin/userdel "$ibay"
@@ -84,7 +84,7 @@ diff -Nur -x '*.orig' -x '*.rej' e-smith-ibays-2.2.0/root/etc/e-smith/events/act
  
          system(
              "/usr/sbin/useradd",
-@@ -108,16 +82,42 @@
+@@ -108,16 +82,41 @@
              "-s",
              "/bin/false",
              "$ibayName"
@@ -100,8 +100,7 @@ diff -Nur -x '*.orig' -x '*.rej' e-smith-ibays-2.2.0/root/etc/e-smith/events/act
 +    ) == 0 or ( $x = $ldapauth ne 'enabled' ? $x : 255, warn "Failed to create (ldap) group $ibayName.\n" );
 +
 +    system(
-+        "/usr/sbin/cpu", "useradd",
-+        "-C/etc/cpu-system.conf",
++        "/usr/sbin/cpu", "-C/etc/cpu-system.conf", "useradd",
 +        "-u",
 +        $ibay->prop("Uid"),
 +        "-g",
@@ -129,7 +128,7 @@ diff -Nur -x '*.orig' -x '*.rej' e-smith-ibays-2.2.0/root/etc/e-smith/events/act
  
      processTemplate( {
  	TEMPLATE_PATH=>"/home/e-smith/files/ibays/html/index.html",
-@@ -125,16 +125,14 @@
+@@ -125,16 +124,14 @@
  	MORE_DATA=>{IBAY_NAME=>$ibayName},
  		} );
  
@@ -146,12 +145,12 @@ diff -Nur -x '*.orig' -x '*.rej' e-smith-ibays-2.2.0/root/etc/e-smith/events/act
 +            or ( $x = 255, warn "Error locking (unix) account $ibayName" );
      }
 +
-+    system("/usr/sbin/cpu", "usermod", "-L", $ibayName) == 0
++    system("/usr/sbin/cpu", "-C/etc/cpu-system.conf", "usermod", "-L", $ibayName) == 0
 +        or ( $x = $ldapauth ne 'enabled' ? $x : 255, warn "Error locking (ldap) account $ibayName" );
  }
  elsif ($event eq 'ibay-modify')
  {
-@@ -142,19 +140,16 @@
+@@ -142,19 +139,16 @@
      # Modify ibay description in /etc/passwd using "usermod"
      #------------------------------------------------------------
  
@@ -170,13 +169,13 @@ diff -Nur -x '*.orig' -x '*.rej' e-smith-ibays-2.2.0/root/etc/e-smith/events/act
 +            or ( $x = 255, warn "Failed to modify (unix) account $ibayName.\n" );
      }
  
-+    system("/usr/sbin/cpu", "usermod", "-c", $ibay->prop("Name"),
++    system("/usr/sbin/cpu", "-C/etc/cpu-system.conf", "usermod", "-c", $ibay->prop("Name"),
 +    "-G", "shared," . $ibay->prop("Group"), "$ibayName") == 0
 +        or ( $x = $ldapauth ne 'enabled' ? $x : 255, warn "Failed to modify (ldap) account $ibayName.\n" );
  }
  
  #------------------------------------------------------------
-@@ -166,7 +161,7 @@
+@@ -166,7 +160,7 @@
  #--------------------------------------------------
  
  chdir "/home/e-smith/files/ibays/$ibayName"
@@ -185,7 +184,7 @@ diff -Nur -x '*.orig' -x '*.rej' e-smith-ibays-2.2.0/root/etc/e-smith/events/act
  
  mkdir '.AppleDesktop' unless (-d '.AppleDesktop');
  
-@@ -237,3 +232,5 @@
+@@ -237,3 +231,5 @@
  }
  
  find(\&process,  glob("* .AppleDesktop"));
