@@ -1,10 +1,10 @@
-# $Id: e-smith-ibays.spec,v 1.14 2010/11/03 18:55:13 slords Exp $
+# $Id: e-smith-ibays.spec,v 1.15 2010/11/04 14:37:08 slords Exp $
 
 Summary: e-smith server and gateway - ibays module
 %define name e-smith-ibays
 Name: %{name}
 %define version 2.2.0
-%define release 6
+%define release 7
 Version: %{version}
 Release: %{release}%{?dist}
 License: GPL
@@ -28,6 +28,9 @@ AutoReqProv: no
 e-smith server and gateway software - ibays module.
 
 %changelog
+* Thu Nov 4 2010 Shad L. Lords <slords@mail.com> 2.2.0-7.sme
+- Fix cpu critical patch missing ) [SME: 6330]
+
 * Wed Nov 3 2010 Shad L. Lords <slords@mail.com> 2.2.0-6.sme
 - Fix cpu critical patch missing ' [SME: 6330]
 

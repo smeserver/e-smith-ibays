@@ -89,7 +89,7 @@ diff -up e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-modify.better-
              "/bin/false",
              "$ibayName"
 -        ) == 0 or die "Failed to create account $ibayName.\n";
-+        ) == 0 or ( $x = 255, warn "Failed to create (unix) account $ibayName.\n";
++        ) == 0 or ( $x = 255, warn "Failed to create (unix) account $ibayName.\n" );
      }
  
 +    system(
