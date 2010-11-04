@@ -1,6 +1,6 @@
-diff -up e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-delete.better-ldap e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-delete
---- e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-delete.better-ldap	2010-11-02 13:37:55.000000000 -0600
-+++ e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-delete	2010-11-02 13:38:04.000000000 -0600
+diff -Nur -x '*.orig' -x '*.rej' e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-delete mezzanine_patched_e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-delete
+--- e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-delete	2010-11-04 16:43:36.000000000 +0100
++++ mezzanine_patched_e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-delete	2010-11-04 16:42:13.000000000 +0100
 @@ -25,6 +25,7 @@
  
  event=$1
@@ -29,10 +29,10 @@ diff -up e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-delete.better-
  fi
 +
 +exit $x
-diff -up e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-modify.better-ldap e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-modify
---- e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-modify.better-ldap	2010-11-02 13:37:55.000000000 -0600
-+++ e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-modify	2010-11-02 13:38:56.000000000 -0600
-@@ -32,6 +32,7 @@ my $conf = esmith::ConfigDB->open_ro
+diff -Nur -x '*.orig' -x '*.rej' e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-modify mezzanine_patched_e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-modify
+--- e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-modify	2010-11-04 16:43:36.000000000 +0100
++++ mezzanine_patched_e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-modify	2010-11-04 16:43:26.000000000 +0100
+@@ -32,6 +32,7 @@
      or die "Could not open Config DB";
  
  my $ldapauth = $conf->get('ldap')->prop('Authentication') || 'disabled';
@@ -40,7 +40,7 @@ diff -up e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-modify.better-
  
  $ENV{'PATH'} = "/bin";
  
-@@ -55,41 +56,14 @@ if ($event eq 'ibay-create')
+@@ -55,41 +56,14 @@
  
      # Create the ibay's unique group first
  
@@ -84,7 +84,7 @@ diff -up e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-modify.better-
  
          system(
              "/usr/sbin/useradd",
-@@ -108,16 +82,41 @@ if ($event eq 'ibay-create')
+@@ -108,16 +82,42 @@
              "-s",
              "/bin/false",
              "$ibayName"
@@ -101,6 +101,7 @@ diff -up e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-modify.better-
 +
 +    system(
 +        "/usr/sbin/cpu", "useradd",
++        "-C/etc/cpu-system.conf",
 +        "-u",
 +        $ibay->prop("Uid"),
 +        "-g",
@@ -128,7 +129,7 @@ diff -up e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-modify.better-
  
      processTemplate( {
  	TEMPLATE_PATH=>"/home/e-smith/files/ibays/html/index.html",
-@@ -125,16 +124,14 @@ if ($event eq 'ibay-create')
+@@ -125,16 +125,14 @@
  	MORE_DATA=>{IBAY_NAME=>$ibayName},
  		} );
  
@@ -150,7 +151,7 @@ diff -up e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-modify.better-
  }
  elsif ($event eq 'ibay-modify')
  {
-@@ -142,19 +139,16 @@ elsif ($event eq 'ibay-modify')
+@@ -142,19 +140,16 @@
      # Modify ibay description in /etc/passwd using "usermod"
      #------------------------------------------------------------
  
@@ -175,7 +176,7 @@ diff -up e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-modify.better-
  }
  
  #------------------------------------------------------------
-@@ -166,7 +160,7 @@ elsif ($event eq 'ibay-modify')
+@@ -166,7 +161,7 @@
  #--------------------------------------------------
  
  chdir "/home/e-smith/files/ibays/$ibayName"
@@ -184,7 +185,7 @@ diff -up e-smith-ibays-2.2.0/root/etc/e-smith/events/actions/ibay-modify.better-
  
  mkdir '.AppleDesktop' unless (-d '.AppleDesktop');
  
-@@ -237,3 +231,5 @@ sub process
+@@ -237,3 +232,5 @@
  }
  
  find(\&process,  glob("* .AppleDesktop"));

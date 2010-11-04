@@ -1,10 +1,10 @@
-# $Id: e-smith-ibays.spec,v 1.15 2010/11/04 14:37:08 slords Exp $
+# $Id: e-smith-ibays.spec,v 1.16 2010/11/04 15:50:00 vip-ire Exp $
 
 Summary: e-smith server and gateway - ibays module
 %define name e-smith-ibays
 Name: %{name}
 %define version 2.2.0
-%define release 7
+%define release 8
 Version: %{version}
 Release: %{release}%{?dist}
 License: GPL
@@ -28,6 +28,9 @@ AutoReqProv: no
 e-smith server and gateway software - ibays module.
 
 %changelog
+* Thu Nov 4 2010 Daniel Berteaud <daniel@firewall-services.com> 2.2.0-8.sme
+- Create ibay accounts as system accounts in LDAP [SME: 6326]
+
 * Thu Nov 4 2010 Shad L. Lords <slords@mail.com> 2.2.0-7.sme
 - Fix cpu critical patch missing ) [SME: 6330]
 
